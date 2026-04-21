@@ -506,7 +506,7 @@ document.getElementById('bulkPrintBtn').addEventListener('click', async function
   printWin.document.write('.cp-sign-box img{width:113px;height:113px;object-fit:contain;mix-blend-mode:multiply;opacity:0.9;position:absolute;top:0;left:0;z-index:1;}');
   printWin.document.write('.cp-date{text-align:center;margin:24px 48px 0;font-size:14px;color:#374151;letter-spacing:2px;}');
   printWin.document.write('.cp-issuer{text-align:center;margin-top:8px;font-size:16px;font-weight:700;color:#1e3a8a;letter-spacing:4px;}');
-  printWin.document.write('.cp-footer{position:absolute;bottom:0;left:0;right:0;background:#1e3a8a;padding:10px 48px;display:flex;justify-content:space-between;}');
+  printWin.document.write('.cp-footer{position:absolute;bottom:8mm;left:0;right:0;background:#1e3a8a;padding:10px 48px;display:flex;justify-content:space-between;}');
   printWin.document.write('.cp-footer span{font-size:9px;color:#93c5fd;}');
   printWin.document.write('</style></head><body>');
   printWin.document.write(wrap.innerHTML);
@@ -516,9 +516,11 @@ document.getElementById('bulkPrintBtn').addEventListener('click', async function
     printWin.focus();
     printWin.print();
     printWin.onafterprint = function() { printWin.close(); };
+    // onafterprint 미작동 대비 fallback
+    setTimeout(function() {
+      if (!printWin.closed) printWin.close();
+    }, 2000);
   };
-  wrap.innerHTML = '';
-  document.title = '교부확인서 관리자';
 });
 
 // DB 폐기
