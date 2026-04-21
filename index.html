@@ -7,76 +7,69 @@
 <meta property="og:title" content="교부확인서 발급">
 <meta property="og:description" content="학교명과 NEIS 번호를 입력하시면 교부확인서를 출력하실 수 있습니다.">
 <meta property="og:image" content="">
-<meta property="og:image:width" content="0">
-<meta property="og:image:height" content="0">
 <meta name="robots" content="noindex, nofollow">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif; background: #f5f6f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
-  .search-wrap { background: #fff; border-radius: 16px; border: 0.5px solid #e0e0e0; padding: 2.5rem 2.5rem 2rem; max-width: 480px; width: 100%; }
-  .badge { display: inline-block; background: #eef2ff; color: #4056c8; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem; }
-  h1 { font-size: 18px; font-weight: 700; color: #1a1a2e; line-height: 1.5; margin-bottom: 0.35rem; }
-  .subtitle { font-size: 13px; color: #888; margin-bottom: 1.75rem; line-height: 1.6; }
-  label { display: block; font-size: 13px; font-weight: 500; color: #444; margin-bottom: 6px; }
-  input { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: border 0.2s; background: #fafafa; color: #1a1a2e; }
-  input:focus { border-color: #4056c8; background: #fff; }
-  .field { margin-bottom: 1rem; }
-  .btn { width: 100%; padding: 12px; background: #4056c8; color: #fff; font-size: 15px; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s, transform 0.1s; }
-  .btn:hover { background: #3247b5; }
-  .btn:active { transform: scale(0.98); }
-  .btn:disabled { background: #b0b8e0; cursor: not-allowed; }
-  .msg { margin-top: 1rem; padding: 12px 16px; border-radius: 8px; font-size: 13px; line-height: 1.8; display: none; white-space: pre-line; }
-  .msg.success { background: #eef9f1; color: #1d6e3a; border: 0.5px solid #a3d9b1; }
-  .msg.error { background: #fff1f1; color: #b53030; border: 0.5px solid #f5b0b0; }
-  .period-info { background: #f7f8ff; border: 0.5px solid #d0d6f5; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #5566aa; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: #4056c8; flex-shrink: 0; }
-  .expired-wrap { text-align: center; padding: 1rem 0; display: none; }
-  .expired-title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 0.5rem; }
-  .expired-desc { font-size: 13px; color: #888; line-height: 1.8; }
-  .retry-btn { margin-top: 12px; padding: 8px 20px; background: #4056c8; color: #fff; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; }
-  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.5); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .footer { margin-top: 1.5rem; font-size: 11px; color: #bbb; text-align: center; }
-  #certWrap { display: none; }
-
-  @media print {
-    @page { size: A4; margin: 0; }
-    body { background: #fff; padding: 0; display: block; }
-    .search-wrap { display: none !important; }
-    #certWrap { display: block !important; }
-    .cert-sign-box { width: 30mm !important; height: 30mm !important; }
-    .cert-sign-box img { width: 30mm !important; height: 30mm !important; }
-  }
-
-  .cert { width: 210mm; min-height: 297mm; margin: 0 auto; font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif; background: #fff; position: relative; }
-  .cert-header { background: #1e3a8a; padding: 32px 48px 28px; color: #fff; }
-  .cert-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-  .cert-org { font-size: 11px; color: #93c5fd; letter-spacing: 1px; }
-  .cert-issue-no { font-size: 11px; color: #93c5fd; }
-  .cert-title { font-size: 28px; font-weight: 700; letter-spacing: 8px; text-align: center; margin: 8px 0 4px; }
-  .cert-title-en { font-size: 11px; color: #93c5fd; text-align: center; letter-spacing: 2px; }
-  .cert-confirm { padding: 24px 48px 0; font-size: 13px; color: #374151; }
-  .cert-confirm strong { color: #1e3a8a; }
-  .cert-divider { margin: 16px 48px; border: none; border-top: 2px solid #1e3a8a; }
-  .cert-table { width: calc(100% - 96px); margin: 0 48px; border-collapse: collapse; }
-  .cert-table tr { border-bottom: 0.5px solid #e5e7eb; }
-  .cert-table tr:first-child { border-top: 0.5px solid #e5e7eb; }
-  .cert-table td.lbl { background: #eff6ff; color: #1e3a8a; font-weight: 700; font-size: 12px; padding: 14px 20px; width: 140px; letter-spacing: 2px; }
-  .cert-table td.val { font-size: 13px; color: #111827; padding: 14px 24px; }
-  .cert-table td.val.amount { font-size: 15px; font-weight: 700; color: #1e3a8a; }
-  .cert-notice { margin: 28px 48px 0; background: #f0f9ff; border-left: 3px solid #1e3a8a; padding: 12px 16px; font-size: 11px; color: #374151; line-height: 1.8; }
-  .cert-sign { margin: 32px 48px 0; display: flex; justify-content: flex-end; align-items: center; gap: 20px; }
-  .cert-sign-text { font-size: 13px; color: #374151; text-align: right; line-height: 2.2; }
-  .cert-sign-box { width: 113px; height: 113px; border: 1px solid #d1d5db; border-radius: 2px; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; }
-  .cert-sign-label { font-size: 11px; color: #9ca3af; position: relative; z-index: 1; }
-  .cert-sign-box img { width: 113px; height: 113px; object-fit: contain; mix-blend-mode: multiply; opacity: 0.9; position: absolute; top: 0; left: 0; }
-  .cert-date { text-align: center; margin: 24px 48px 0; font-size: 14px; color: #374151; letter-spacing: 2px; }
-  .cert-issuer { text-align: center; margin-top: 8px; font-size: 16px; font-weight: 700; color: #1e3a8a; letter-spacing: 4px; }
-  .cert-footer { position: absolute; bottom: 0; left: 0; right: 0; background: #1e3a8a; padding: 10px 48px; display: flex; justify-content: space-between; align-items: center; }
-  .cert-footer span { font-size: 9px; color: #93c5fd; }
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif; background: #f5f6f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
+.search-wrap { background: #fff; border-radius: 16px; border: 0.5px solid #e0e0e0; padding: 2.5rem 2.5rem 2rem; max-width: 480px; width: 100%; }
+.badge { display: inline-block; background: #eef2ff; color: #4056c8; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 18px; font-weight: 700; color: #1a1a2e; line-height: 1.5; margin-bottom: 0.35rem; }
+.subtitle { font-size: 13px; color: #888; margin-bottom: 1.75rem; line-height: 1.6; }
+label { display: block; font-size: 13px; font-weight: 500; color: #444; margin-bottom: 6px; }
+input { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: border 0.2s; background: #fafafa; color: #1a1a2e; }
+input:focus { border-color: #4056c8; background: #fff; }
+.field { margin-bottom: 1rem; }
+.btn { width: 100%; padding: 12px; background: #4056c8; color: #fff; font-size: 15px; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s; }
+.btn:hover { background: #3247b5; }
+.btn:disabled { background: #b0b8e0; cursor: not-allowed; }
+.msg { margin-top: 1rem; padding: 12px 16px; border-radius: 8px; font-size: 13px; line-height: 1.8; display: none; white-space: pre-line; }
+.msg.success { background: #eef9f1; color: #1d6e3a; border: 0.5px solid #a3d9b1; }
+.msg.error { background: #fff1f1; color: #b53030; border: 0.5px solid #f5b0b0; }
+.period-info { background: #f7f8ff; border: 0.5px solid #d0d6f5; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #5566aa; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #4056c8; flex-shrink: 0; }
+.expired-wrap { text-align: center; padding: 1rem 0; display: none; }
+.expired-title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 0.5rem; }
+.expired-desc { font-size: 13px; color: #888; line-height: 1.8; }
+.retry-btn { margin-top: 12px; padding: 8px 20px; background: #4056c8; color: #fff; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; }
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.5); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.footer { margin-top: 1.5rem; font-size: 11px; color: #bbb; text-align: center; }
+#certWrap { display: none; }
+@media print {
+  @page { size: A4; margin: 0; }
+  body { background: #fff; padding: 0; display: block; }
+  .search-wrap { display: none !important; }
+  #certWrap { display: block !important; }
+  .cert-sign-box { width: 30mm !important; height: 30mm !important; }
+  .cert-sign-box img { width: 30mm !important; height: 30mm !important; }
+}
+.cert { width: 210mm; min-height: 297mm; margin: 0 auto; font-family: 'Noto Sans KR', sans-serif; background: #fff; position: relative; }
+.cert-header { background: #1e3a8a; padding: 32px 48px 28px; color: #fff; }
+.cert-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.cert-org { font-size: 11px; color: #93c5fd; letter-spacing: 1px; }
+.cert-issue-no { font-size: 11px; color: #93c5fd; }
+.cert-title { font-size: 28px; font-weight: 700; letter-spacing: 8px; text-align: center; margin: 8px 0 4px; }
+.cert-title-en { font-size: 11px; color: #93c5fd; text-align: center; letter-spacing: 2px; }
+.cert-confirm { padding: 24px 48px 0; font-size: 13px; color: #374151; }
+.cert-confirm strong { color: #1e3a8a; }
+.cert-divider { margin: 16px 48px; border: none; border-top: 2px solid #1e3a8a; }
+.cert-table { width: calc(100% - 96px); margin: 0 48px; border-collapse: collapse; }
+.cert-table tr { border-bottom: 0.5px solid #e5e7eb; }
+.cert-table tr:first-child { border-top: 0.5px solid #e5e7eb; }
+.cert-table td.lbl { background: #eff6ff; color: #1e3a8a; font-weight: 700; font-size: 12px; padding: 14px 20px; width: 140px; letter-spacing: 2px; }
+.cert-table td.val { font-size: 13px; color: #111827; padding: 14px 24px; }
+.cert-table td.val.amount { font-size: 15px; font-weight: 700; color: #1e3a8a; }
+.cert-notice { margin: 28px 48px 0; background: #f0f9ff; border-left: 3px solid #1e3a8a; padding: 12px 16px; font-size: 11px; color: #374151; line-height: 1.8; }
+.cert-sign { margin: 32px 48px 0; display: flex; justify-content: flex-end; align-items: center; gap: 20px; }
+.cert-sign-text { font-size: 13px; color: #374151; text-align: right; line-height: 2.2; }
+.cert-sign-box { width: 113px; height: 113px; border: 1px solid #d1d5db; border-radius: 2px; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; }
+.cert-sign-label { font-size: 22px; color: #9ca3af; position: absolute; z-index: 0; }
+.cert-sign-box img { width: 113px; height: 113px; object-fit: contain; mix-blend-mode: multiply; opacity: 0.9; position: absolute; top: 0; left: 0; z-index: 1; }
+.cert-date { text-align: center; margin: 24px 48px 0; font-size: 14px; color: #374151; letter-spacing: 2px; }
+.cert-issuer { text-align: center; margin-top: 8px; font-size: 16px; font-weight: 700; color: #1e3a8a; letter-spacing: 4px; }
+.cert-footer { position: absolute; bottom: 0; left: 0; right: 0; background: #1e3a8a; padding: 10px 48px; display: flex; justify-content: space-between; align-items: center; }
+.cert-footer span { font-size: 9px; color: #93c5fd; }
 </style>
 </head>
 <body>
@@ -103,7 +96,7 @@
   </div>
   <div class="expired-wrap" id="expiredSection">
     <div style="font-size:36px;margin-bottom:.75rem">🔒</div>
-    <div class="expired-title">발급 기간이 아닙니다</div>
+    <div class="expired-title" id="expiredTitle">발급 기간이 아닙니다</div>
     <div class="expired-desc" id="expiredDesc"></div>
   </div>
   <div class="footer">문의: 교육청 담당자 | ☎ 02-6033-6134</div>
@@ -136,8 +129,8 @@
     <div class="cert-sign">
       <div class="cert-sign-text">서울특별시교육청<br>교육감</div>
       <div class="cert-sign-box">
-        <span class="cert-sign-label">(직 인)</span>
-        <img src="seal.png" alt="" aria-hidden="true" data-nosnippet>
+        <span class="cert-sign-label" id="sealLabel">(직 인)</span>
+        <img id="sealImg" alt="" aria-hidden="true" style="display:none">
       </div>
     </div>
     <div class="cert-date" id="cIssueDate"></div>
@@ -150,148 +143,191 @@
 </div>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-  const supabase = createClient(
-    'https://kjhububjqsvitkaagfzd.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqaHVidWJqcXN2aXRrYWFnZnpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTMyNDEsImV4cCI6MjA5MjMyOTI0MX0.IKD1hprLvoDCwk-oQrv9KAscfZu93RwKaLFkY2rOfUw'
-  );
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-  const pad = n => String(n).padStart(2, '0');
+const supabase = createClient(
+  'https://kjhububjqsvitkaagfzd.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqaHVidWJqcXN2aXRrYWFnZnpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTMyNDEsImV4cCI6MjA5MjMyOTI0MX0.IKD1hprLvoDCwk-oQrv9KAscfZu93RwKaLFkY2rOfUw'
+);
 
-  function parseKST(str) {
-    if (!str) return null;
-    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(str) && !str.endsWith('Z')) return str.slice(0, 16);
-    const d = new Date(str);
-    if (isNaN(d)) return null;
-    const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
-    return `${kst.getUTCFullYear()}-${pad(kst.getUTCMonth()+1)}-${pad(kst.getUTCDate())}T${pad(kst.getUTCHours())}:${pad(kst.getUTCMinutes())}`;
-  }
+function pad(n) { return String(n).padStart(2, '0'); }
 
-  function nowKSTStr() {
-    const kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
-    return `${kst.getUTCFullYear()}-${pad(kst.getUTCMonth()+1)}-${pad(kst.getUTCDate())}T${pad(kst.getUTCHours())}:${pad(kst.getUTCMinutes())}`;
-  }
+function parseKST(str) {
+  if (!str) return null;
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(str) && str.indexOf('Z') === -1) return str.slice(0, 16);
+  var d = new Date(str);
+  if (isNaN(d)) return null;
+  var kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  return kst.getUTCFullYear() + '-' + pad(kst.getUTCMonth()+1) + '-' + pad(kst.getUTCDate()) + 'T' + pad(kst.getUTCHours()) + ':' + pad(kst.getUTCMinutes());
+}
 
-  function fmt(str) { return str.replace('T', ' '); }
+function nowKSTStr() {
+  var kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  return kst.getUTCFullYear() + '-' + pad(kst.getUTCMonth()+1) + '-' + pad(kst.getUTCDate()) + 'T' + pad(kst.getUTCHours()) + ':' + pad(kst.getUTCMinutes());
+}
 
-  function showExpired(title, desc) {
-    document.getElementById('expiredSection').style.display = 'block';
-    document.querySelector('.expired-title').textContent = title;
-    document.getElementById('expiredDesc').textContent = desc;
-  }
+function fmt(str) { return str.replace('T', ' '); }
 
-  async function init() {
-    try {
-      const { data: settings, error } = await Promise.race([
-        supabase.from('settings').select('*'),
-        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
-      ]);
+function showExpired(title, desc) {
+  document.getElementById('expiredSection').style.display = 'block';
+  document.getElementById('expiredTitle').textContent = title;
+  document.getElementById('expiredDesc').textContent = desc;
+}
 
-      if (error) throw new Error(error.message);
+function showMsg(text, type) {
+  var m = document.getElementById('msgBox');
+  m.textContent = text;
+  m.className = 'msg ' + type;
+  m.style.display = 'block';
+}
 
-      const s = settings?.find(r => r.key === 'start_date');
-      const e = settings?.find(r => r.key === 'end_date');
+function fillCert(d) {
+  var today = new Date();
+  var dateStr = today.getFullYear() + '년 ' + pad(today.getMonth()+1) + '월 ' + pad(today.getDate()) + '일';
+  var timeStr = pad(today.getHours()) + ':' + pad(today.getMinutes()) + ':' + pad(today.getSeconds());
+  document.getElementById('cProjectName').textContent = d.project_name || '-';
+  document.getElementById('cSchoolName').textContent  = d.school_name  || '-';
+  document.getElementById('cNeisNumber').textContent  = d.neis_number  || '-';
+  document.getElementById('cGrantAmount').textContent = (d.grant_amount || '-') + ' 원';
+  document.getElementById('cGrantDate').textContent   = d.grant_date   || '-';
+  document.getElementById('cIssueDate').textContent   = dateStr;
+  document.getElementById('cFooterDate').textContent  = dateStr + ' ' + timeStr + ' 발급';
+  document.getElementById('certIssueNo').textContent  = '발급일: ' + dateStr + ' ' + timeStr;
+  document.title = '교부확인서 발급_' + d.school_name;
+}
 
-      if (!s || !e) {
-        document.getElementById('periodText').textContent = '발급 기간이 설정되지 않았습니다.';
-        showExpired('발급 기간 미설정', '관리자에게 문의해 주세요.');
-        return;
+async function init() {
+  try {
+    var result = await Promise.race([
+      supabase.from('settings').select('*'),
+      new Promise(function(_, rej) { setTimeout(function() { rej(new Error('timeout')); }, 5000); })
+    ]);
+
+    var settings = result.data;
+    var error = result.error;
+    if (error) throw new Error(error.message);
+
+    var s = null, e = null;
+    if (settings) {
+      for (var i = 0; i < settings.length; i++) {
+        if (settings[i].key === 'start_date') s = settings[i];
+        if (settings[i].key === 'end_date') e = settings[i];
       }
-
-      const sv = parseKST(s.value);
-      const ev = parseKST(e.value);
-
-      if (!sv || !ev) {
-        document.getElementById('periodText').textContent = '발급 기간 데이터 오류';
-        showExpired('데이터 오류', '관리자에게 문의해 주세요.');
-        return;
-      }
-
-      document.getElementById('periodText').innerHTML = `발급 기간: <strong>${fmt(sv)} ~ ${fmt(ev)}</strong> (KST)`;
-
-      const now = nowKSTStr();
-
-      if (now > ev) {
-        await supabase.from('grant_certificates').delete().gte('created_at', '2000-01-01');
-        showExpired('발급 기간 종료', `발급 기간이 종료되었습니다.\n(종료: ${fmt(ev)})`);
-        return;
-      }
-
-      if (now < sv) {
-        showExpired('발급 기간 전', `아직 발급 기간이 아닙니다.\n(시작: ${fmt(sv)})`);
-        return;
-      }
-
-      document.getElementById('formSection').style.display = 'block';
-
-      const { data: proj } = await supabase.from('grant_certificates').select('project_name').limit(1).single();
-      if (proj?.project_name) document.getElementById('projectBadge').textContent = proj.project_name;
-
-    } catch (err) {
-      document.getElementById('periodText').textContent = '불러오기 실패';
-      document.getElementById('expiredSection').style.display = 'block';
-      document.querySelector('.expired-title').textContent = '연결 오류';
-      document.getElementById('expiredDesc').textContent = '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
-      const retryBtn = document.createElement('button');
-      retryBtn.textContent = '다시 시도';
-      retryBtn.className = 'retry-btn';
-      retryBtn.onclick = () => location.reload();
-      document.getElementById('expiredSection').appendChild(retryBtn);
     }
-  }
 
-  init();
-
-  document.getElementById('submitBtn').addEventListener('click', async () => {
-    const schoolName = document.getElementById('schoolName').value.trim();
-    const neisNum    = document.getElementById('neisNum').value.trim();
-    const btn        = document.getElementById('submitBtn');
-    const msgBox     = document.getElementById('msgBox');
-    msgBox.style.display = 'none';
-
-    if (!schoolName || !neisNum) { showMsg('학교명과 NEIS 번호를 모두 입력해 주세요.', 'error'); return; }
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>조회 중...';
-
-    const { data, error } = await supabase
-      .from('grant_certificates').select('*')
-      .eq('school_name', schoolName).eq('neis_number', neisNum).single();
-
-    btn.disabled = false;
-    btn.innerHTML = '교부확인서 출력';
-
-    if (error || !data) {
-      showMsg('일치하는 학교 정보가 없습니다.\n학교명과 NEIS 번호를 다시 확인해 주세요.', 'error');
+    if (!s || !e) {
+      document.getElementById('periodText').textContent = '발급 기간이 설정되지 않았습니다.';
+      showExpired('발급 기간 미설정', '관리자에게 문의해 주세요.');
       return;
     }
 
-    fillCert(data);
-    setTimeout(() => window.print(), 300);
-  });
+    var sv = parseKST(s.value);
+    var ev = parseKST(e.value);
 
-  window.onafterprint = () => { document.title = '교부확인서 발급'; };
+    if (!sv || !ev) {
+      document.getElementById('periodText').textContent = '발급 기간 데이터 오류';
+      showExpired('데이터 오류', '관리자에게 문의해 주세요.');
+      return;
+    }
 
-  function fillCert(d) {
-    const today = new Date();
-    const dateStr = `${today.getFullYear()}년 ${pad(today.getMonth()+1)}월 ${pad(today.getDate())}일`;
-    const timeStr = `${pad(today.getHours())}:${pad(today.getMinutes())}:${pad(today.getSeconds())}`;
+    document.getElementById('periodText').innerHTML = '발급 기간: <strong>' + fmt(sv) + ' ~ ' + fmt(ev) + '</strong> (KST)';
 
-    document.getElementById('cProjectName').textContent = d.project_name || '-';
-    document.getElementById('cSchoolName').textContent  = d.school_name  || '-';
-    document.getElementById('cNeisNumber').textContent  = d.neis_number  || '-';
-    document.getElementById('cGrantAmount').textContent = (d.grant_amount || '-') + ' 원';
-    document.getElementById('cGrantDate').textContent   = d.grant_date   || '-';
-    document.getElementById('cIssueDate').textContent   = dateStr;
-    document.getElementById('cFooterDate').textContent  = `${dateStr} ${timeStr} 발급`;
-    document.getElementById('certIssueNo').textContent  = `발급일: ${dateStr} ${timeStr}`;
-    document.title = `교부확인서 발급_${d.school_name}`;
+    var now = nowKSTStr();
+
+    if (now > ev) {
+      await supabase.from('grant_certificates').delete().gte('created_at', '2000-01-01');
+      showExpired('발급 기간 종료', '발급 기간이 종료되었습니다. (종료: ' + fmt(ev) + ')');
+      return;
+    }
+
+    if (now < sv) {
+      showExpired('발급 기간 전', '아직 발급 기간이 아닙니다. (시작: ' + fmt(sv) + ')');
+      return;
+    }
+
+    var countResult = await supabase.from('grant_certificates').select('*', { count: 'exact', head: true });
+    var count = countResult.count;
+
+    if (!count || count === 0) {
+      document.getElementById('projectBadge').style.display = 'none';
+      document.getElementById('periodText').innerHTML = '현재 발급 가능한 데이터가 없습니다.';
+      document.querySelector('.dot').style.background = '#b53030';
+      document.querySelector('.period-info').style.borderColor = '#f5b0b0';
+      document.querySelector('.period-info').style.background = '#fff1f1';
+      document.querySelector('.period-info').style.color = '#b53030';
+      showExpired('발급 데이터 없음', '등록된 교부확인서 데이터가 없습니다.\n관리자에게 문의해 주세요.');
+      return;
+    }
+
+    var projResult = await supabase.from('grant_certificates').select('project_name').limit(1).single();
+    if (projResult.data && projResult.data.project_name) {
+      document.getElementById('projectBadge').textContent = projResult.data.project_name;
+    }
+    document.getElementById('formSection').style.display = 'block';
+
+  } catch(err) {
+    document.getElementById('periodText').textContent = '불러오기 실패';
+    document.getElementById('expiredSection').style.display = 'block';
+    document.getElementById('expiredTitle').textContent = '연결 오류';
+    document.getElementById('expiredDesc').textContent = '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+    var retryBtn = document.createElement('button');
+    retryBtn.textContent = '다시 시도';
+    retryBtn.className = 'retry-btn';
+    retryBtn.onclick = function() { location.reload(); };
+    document.getElementById('expiredSection').appendChild(retryBtn);
+  }
+}
+
+init();
+
+document.getElementById('submitBtn').addEventListener('click', async function() {
+  var schoolName = document.getElementById('schoolName').value.trim();
+  var neisNum    = document.getElementById('neisNum').value.trim();
+  var btn        = document.getElementById('submitBtn');
+  document.getElementById('msgBox').style.display = 'none';
+
+  if (!schoolName || !neisNum) {
+    showMsg('학교명과 NEIS 번호를 모두 입력해 주세요.', 'error');
+    return;
   }
 
-  function showMsg(text, type) {
-    const m = document.getElementById('msgBox');
-    m.textContent = text; m.className = 'msg ' + type; m.style.display = 'block';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>조회 중...';
+
+  var queryResult = await supabase
+    .from('grant_certificates')
+    .select('*')
+    .eq('school_name', schoolName)
+    .eq('neis_number', neisNum)
+    .single();
+
+  btn.disabled = false;
+  btn.innerHTML = '교부확인서 출력';
+
+  if (queryResult.error || !queryResult.data) {
+    showMsg('일치하는 학교 정보가 없습니다.\n학교명과 NEIS 번호를 다시 확인해 주세요.', 'error');
+    return;
   }
+
+  fillCert(queryResult.data);
+
+  var signResult = await supabase.storage.from('seal').createSignedUrl('seal.png', 60);
+  if (!signResult.error && signResult.data && signResult.data.signedUrl) {
+    var img = document.getElementById('sealImg');
+    img.src = signResult.data.signedUrl;
+    img.style.display = 'block';
+    // (직 인) 텍스트는 그대로 유지
+  }
+
+  setTimeout(function() { window.print(); }, 600);
+
+  window.onafterprint = function() {
+    var img = document.getElementById('sealImg');
+    img.src = '';
+    img.style.display = 'none';
+    document.title = '교부확인서 발급';
+  };
+});
 </script>
 </body>
 </html>
