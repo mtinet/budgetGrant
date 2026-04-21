@@ -6,78 +6,120 @@
 <title>교부확인서 관리자</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif; background: #f5f6f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
-  .container { background: #fff; border-radius: 16px; border: 0.5px solid #e0e0e0; padding: 2.5rem; max-width: 600px; width: 100%; }
-  .badge { display: inline-block; background: #fff3e0; color: #e65100; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem; }
-  h1 { font-size: 18px; font-weight: 600; color: #1a1a2e; margin-bottom: 0.35rem; }
-  .subtitle { font-size: 13px; color: #888; margin-bottom: 1.75rem; line-height: 1.6; }
-  .section-title { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 0.5px solid #ebebeb; }
-  .section { margin-bottom: 2rem; }
-  label { display: block; font-size: 13px; font-weight: 500; color: #444; margin-bottom: 6px; }
-  input[type="date"] { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: border 0.2s; background: #fafafa; color: #1a1a2e; }
-  input[type="date"]:focus { border-color: #4056c8; background: #fff; }
-  select { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; outline: none; background: #fafafa; color: #1a1a2e; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
-  select:focus { border-color: #4056c8; background-color: #fff; }
-  .field { margin-bottom: 1rem; }
-  .btn { width: 100%; padding: 12px; background: #4056c8; color: #fff; font-size: 15px; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; transition: background 0.2s, transform 0.1s; }
-  .btn:hover { background: #3247b5; }
-  .btn:active { transform: scale(0.98); }
-  .btn:disabled { background: #b0b8e0; cursor: not-allowed; }
-  .btn-outline { width: 100%; padding: 10px; background: #fff; color: #4056c8; font-size: 13px; font-weight: 500; border: 1px solid #4056c8; border-radius: 10px; cursor: pointer; margin-bottom: 1rem; transition: background 0.2s; }
-  .btn-outline:hover { background: #f0f3ff; }
-  .btn-danger { width: 100%; padding: 10px; background: #fff; color: #b53030; font-size: 13px; font-weight: 500; border: 1px solid #f5b0b0; border-radius: 10px; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s; }
-  .btn-danger:hover { background: #fff1f1; }
-  .period-card { background: #f7f8ff; border: 0.5px solid #d0d6f5; border-radius: 12px; padding: 16px; margin-bottom: 8px; }
-  .period-card-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; margin-bottom: 10px; }
-  .period-card-label.start { color: #4056c8; }
-  .period-card-label.end { color: #b53030; }
-  .period-card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .period-card-body input, .period-card-body select { background: #fff; }
-  .period-arrow { text-align: center; font-size: 18px; color: #b0b8d8; margin: 4px 0; }
-  .current-period { background: #f7f8ff; border: 0.5px solid #d0d6f5; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #5566aa; margin-bottom: 1rem; }
-  .upload-area { border: 2px dashed #d0d6f5; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: border 0.2s, background 0.2s; margin-bottom: 1rem; }
-  .upload-area:hover, .upload-area.drag { border-color: #4056c8; background: #f7f8ff; }
-  .upload-icon { font-size: 32px; margin-bottom: 0.5rem; }
-  .upload-title { font-size: 13px; font-weight: 500; color: #333; }
-  .upload-sub { font-size: 12px; color: #aaa; margin-top: 4px; }
-  input[type="file"] { display: none; }
-  .preview { display: none; margin-bottom: 1rem; }
-  .preview-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
-  .preview-title { font-size: 13px; font-weight: 500; color: #444; }
-  .count-badge { background: #eef2ff; color: #4056c8; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
-  .table-wrap { overflow-x: auto; border: 0.5px solid #ebebeb; border-radius: 10px; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  th { background: #f7f8ff; color: #5566aa; font-weight: 500; padding: 10px 12px; text-align: left; border-bottom: 0.5px solid #ebebeb; white-space: nowrap; }
-  td { padding: 9px 12px; border-bottom: 0.5px solid #f0f0f0; color: #333; white-space: nowrap; }
-  tr:last-child td { border-bottom: none; }
-  .msg { margin-top: 1rem; padding: 12px 16px; border-radius: 8px; font-size: 13px; line-height: 1.6; display: none; }
-  .msg.success { background: #eef9f1; color: #1d6e3a; border: 0.5px solid #a3d9b1; }
-  .msg.error { background: #fff1f1; color: #b53030; border: 0.5px solid #f5b0b0; }
-  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.5); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .progress { display: none; margin-top: 1rem; }
-  .progress-bar-wrap { background: #f0f0f0; border-radius: 10px; height: 6px; margin-top: 0.5rem; }
-  .progress-bar { background: #4056c8; height: 6px; border-radius: 10px; width: 0%; transition: width 0.2s; }
-  .progress-text { font-size: 12px; color: #888; margin-top: 0.4rem; }
-  .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; width: 100%; background: #f5f6f8; }
-  .login-card { background: #fff; border-radius: 16px; border: 0.5px solid #e0e0e0; padding: 2.5rem; max-width: 400px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.07); }
-  .login-icon { width: 48px; height: 48px; background: #eef2ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; }
-  .login-icon svg { width: 24px; height: 24px; }
-  .login-card h1 { font-size: 18px; font-weight: 600; color: #1a1a2e; margin-bottom: 0.3rem; }
-  .login-card .subtitle { font-size: 13px; color: #888; margin-bottom: 1.75rem; line-height: 1.6; }
-  .pw-wrap { position: relative; margin-bottom: 1rem; }
-  .pw-wrap input { width: 100%; padding: 11px 44px 11px 14px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: border 0.2s; background: #fafafa; color: #1a1a2e; }
-  .pw-wrap input:focus { border-color: #4056c8; background: #fff; }
-  .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #aaa; padding: 0; display: flex; align-items: center; }
-  .pw-toggle:hover { color: #4056c8; }
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif; background: #f5f6f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
+.login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; width: 100%; }
+.login-card { background: #fff; border-radius: 16px; border: 0.5px solid #e0e0e0; padding: 2.5rem; max-width: 400px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.07); }
+.login-icon { width: 48px; height: 48px; background: #eef2ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; }
+.login-card h1 { font-size: 18px; font-weight: 600; color: #1a1a2e; margin-bottom: 0.3rem; }
+.login-card .subtitle { font-size: 13px; color: #888; margin-bottom: 1.75rem; line-height: 1.6; }
+.pw-wrap { position: relative; margin-bottom: 1rem; }
+.pw-wrap input { width: 100%; padding: 11px 44px 11px 14px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: border 0.2s; background: #fafafa; color: #1a1a2e; }
+.pw-wrap input:focus { border-color: #4056c8; background: #fff; }
+.pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #aaa; padding: 0; display: flex; align-items: center; }
+.container { background: #fff; border-radius: 16px; border: 0.5px solid #e0e0e0; padding: 2.5rem; max-width: 600px; width: 100%; }
+.badge { display: inline-block; background: #fff3e0; color: #e65100; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 18px; font-weight: 600; color: #1a1a2e; margin-bottom: 0.35rem; }
+.subtitle { font-size: 13px; color: #888; margin-bottom: 1.75rem; line-height: 1.6; }
+.section-title { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 0.5px solid #ebebeb; }
+.section { margin-bottom: 2rem; }
+label { display: block; font-size: 13px; font-weight: 500; color: #444; margin-bottom: 6px; }
+input[type="date"], input[type="text"], input[type="password"] { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: border 0.2s; background: #fafafa; color: #1a1a2e; }
+input:focus { border-color: #4056c8; background: #fff; }
+select { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; outline: none; background: #fafafa; color: #1a1a2e; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+select:focus { border-color: #4056c8; background-color: #fff; }
+.field { margin-bottom: 1rem; }
+.btn { width: 100%; padding: 12px; background: #4056c8; color: #fff; font-size: 15px; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; transition: background 0.2s; }
+.btn:hover { background: #3247b5; }
+.btn:disabled { background: #b0b8e0; cursor: not-allowed; }
+.btn-outline { width: 100%; padding: 10px; background: #fff; color: #4056c8; font-size: 13px; font-weight: 500; border: 1px solid #4056c8; border-radius: 10px; cursor: pointer; margin-bottom: 1rem; transition: background 0.2s; }
+.btn-outline:hover { background: #f0f3ff; }
+.btn-danger { width: 100%; padding: 10px; background: #fff; color: #b53030; font-size: 13px; font-weight: 500; border: 1px solid #f5b0b0; border-radius: 10px; cursor: pointer; transition: background 0.2s; }
+.btn-danger:hover { background: #fff1f1; }
+.period-card { background: #f7f8ff; border: 0.5px solid #d0d6f5; border-radius: 12px; padding: 16px; margin-bottom: 8px; }
+.period-card-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; margin-bottom: 10px; }
+.period-card-label.start { color: #4056c8; }
+.period-card-label.end { color: #b53030; }
+.period-card-body { display: flex; gap: 8px; align-items: end; }
+.f-date { flex: 2; min-width: 0; }
+.f-hour { flex: 1; min-width: 0; }
+.f-date input, .f-hour select { background: #fff; width: 100%; }
+.time-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+.period-arrow { text-align: center; font-size: 18px; color: #b0b8d8; margin: 4px 0; }
+.current-period { background: #f7f8ff; border: 0.5px solid #d0d6f5; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #5566aa; margin-bottom: 1rem; }
+.upload-area { border: 2px dashed #d0d6f5; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: border 0.2s, background 0.2s; margin-bottom: 1rem; }
+.upload-area:hover { border-color: #4056c8; background: #f7f8ff; }
+.upload-icon { font-size: 32px; margin-bottom: 0.5rem; }
+.upload-title { font-size: 13px; font-weight: 500; color: #333; }
+.upload-sub { font-size: 12px; color: #aaa; margin-top: 4px; }
+input[type="file"] { display: none; }
+.preview { display: none; margin-bottom: 1rem; }
+.preview-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+.preview-title { font-size: 13px; font-weight: 500; color: #444; }
+.count-badge { background: #eef2ff; color: #4056c8; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+.table-wrap { overflow-x: auto; border: 0.5px solid #ebebeb; border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { background: #f7f8ff; color: #5566aa; font-weight: 500; padding: 10px 12px; text-align: left; border-bottom: 0.5px solid #ebebeb; white-space: nowrap; }
+td { padding: 9px 12px; border-bottom: 0.5px solid #f0f0f0; color: #333; white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+.msg { margin-top: 1rem; padding: 12px 16px; border-radius: 8px; font-size: 13px; line-height: 1.6; display: none; }
+.msg.success { background: #eef9f1; color: #1d6e3a; border: 0.5px solid #a3d9b1; }
+.msg.error { background: #fff1f1; color: #b53030; border: 0.5px solid #f5b0b0; }
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.5); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.progress { display: none; margin-top: 1rem; }
+.progress-bar-wrap { background: #f0f0f0; border-radius: 10px; height: 6px; margin-top: 0.5rem; }
+.progress-bar { background: #4056c8; height: 6px; border-radius: 10px; width: 0%; transition: width 0.2s; }
+.progress-text { font-size: 12px; color: #888; margin-top: 0.4rem; }
+.footer { margin-top: 1.5rem; font-size: 11px; color: #bbb; text-align: center; }
+
+/* 일괄 출력 인쇄용 */
+#bulkCertWrap { display: none; }
+@media print {
+  @page { size: A4; margin: 0; }
+  body > * { display: none !important; }
+  #bulkCertWrap { display: block !important; }
+  #bulkCertWrap:empty { display: none !important; }
+}
+.cert-page { width: 210mm; height: 297mm; margin: 0; font-family: 'Noto Sans KR', sans-serif; background: #fff; position: relative; break-after: page; page-break-after: always; page-break-inside: avoid; overflow: hidden; }
+.cert-page:last-child { break-after: avoid; page-break-after: avoid; }
+.cp-header { background: #1e3a8a; padding: 32px 48px 28px; color: #fff; }
+.cp-header-top { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.cp-org { font-size: 11px; color: #93c5fd; }
+.cp-issue-no { font-size: 11px; color: #93c5fd; }
+.cp-title { font-size: 28px; font-weight: 700; letter-spacing: 8px; text-align: center; margin: 8px 0 4px; color: #fff; }
+.cp-title-en { font-size: 11px; color: #93c5fd; text-align: center; letter-spacing: 2px; }
+.cp-confirm { padding: 24px 48px 0; font-size: 13px; color: #374151; }
+.cp-confirm strong { color: #1e3a8a; }
+.cp-divider { margin: 16px 48px; border: none; border-top: 2px solid #1e3a8a; }
+.cp-table { width: calc(100% - 96px); margin: 0 48px; border-collapse: collapse; }
+.cp-table tr { border-bottom: 0.5px solid #e5e7eb; }
+.cp-table tr:first-child { border-top: 0.5px solid #e5e7eb; }
+.cp-table td.lbl { background: #eff6ff; color: #1e3a8a; font-weight: 700; font-size: 12px; padding: 14px 20px; width: 140px; letter-spacing: 2px; }
+.cp-table td.val { font-size: 13px; color: #111827; padding: 14px 24px; }
+.cp-table td.val.amount { font-size: 15px; font-weight: 700; color: #1e3a8a; }
+.cp-notice { margin: 28px 48px 0; background: #f0f9ff; border-left: 3px solid #1e3a8a; padding: 12px 16px; font-size: 11px; color: #374151; line-height: 1.8; }
+.cp-sign { margin: 32px 48px 0; display: flex; justify-content: flex-end; align-items: center; gap: 20px; }
+.cp-sign-text { font-size: 13px; color: #374151; text-align: right; line-height: 2.2; }
+.cp-sign-box { width: 113px; height: 113px; border: 1px solid #d1d5db; border-radius: 2px; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; }
+.cp-sign-label { font-size: 22px; color: #9ca3af; position: absolute; z-index: 0; }
+.cp-sign-box img { width: 113px; height: 113px; object-fit: contain; mix-blend-mode: multiply; opacity: 0.9; position: absolute; top: 0; left: 0; z-index: 1; }
+.cp-date { text-align: center; margin: 24px 48px 0; font-size: 14px; color: #374151; letter-spacing: 2px; }
+.cp-issuer { text-align: center; margin-top: 8px; font-size: 16px; font-weight: 700; color: #1e3a8a; letter-spacing: 4px; }
+.cp-footer { position: absolute; bottom: 0; left: 0; right: 0; background: #1e3a8a; padding: 10px 48px; display: flex; justify-content: space-between; }
+.cp-footer span { font-size: 9px; color: #93c5fd; }
 </style>
 </head>
 <body>
+
+<div id="bulkCertWrap"></div>
+
+<!-- 로그인 -->
 <div class="login-wrap" id="loginWrap">
   <div class="login-card">
     <div class="login-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#4056c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4056c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
       </svg>
     </div>
@@ -85,17 +127,18 @@
     <p class="subtitle">교부확인서 관리자 페이지입니다.<br>비밀번호를 입력해 주세요.</p>
     <div class="pw-wrap">
       <input type="password" id="adminPw" placeholder="비밀번호 입력" autocomplete="off">
-      <button class="pw-toggle" id="pwToggle" type="button" onclick="togglePw()">
-        <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="pw-toggle" id="pwToggle" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
         </svg>
       </button>
     </div>
-    <button class="btn" id="loginBtn" onclick="doLogin()">로그인</button>
+    <button class="btn" id="loginBtn">로그인</button>
     <div class="msg" id="loginMsg"></div>
   </div>
 </div>
 
+<!-- 관리자 페이지 -->
 <div class="container" id="adminWrap" style="display:none">
   <div class="badge">관리자</div>
   <h1>교부확인서 관리자</h1>
@@ -104,7 +147,6 @@
   <div class="section">
     <div class="section-title">발급 기간 설정</div>
     <div class="current-period" id="currentPeriod">현재 설정된 기간을 불러오는 중...</div>
-
     <div class="period-card">
       <div class="period-card-label start">시작</div>
       <div class="period-card-body">
@@ -121,14 +163,14 @@
       </div>
     </div>
     <div style="margin-bottom:1rem"></div>
-    <button class="btn" id="savePeriodBtn" onclick="savePeriod()">발급 기간 저장</button>
+    <button class="btn" id="savePeriodBtn">발급 기간 저장</button>
     <div class="msg" id="periodMsg"></div>
   </div>
 
   <div class="section">
     <div class="section-title">데이터 업로드</div>
-    <button class="btn-outline" onclick="downloadSample()">샘플 엑셀 다운로드</button>
-    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+    <button class="btn-outline" id="sampleBtn">샘플 엑셀 다운로드</button>
+    <div class="upload-area" id="uploadArea">
       <div class="upload-icon">📊</div>
       <div class="upload-title">엑셀 파일을 드래그하거나 클릭해서 업로드</div>
       <div class="upload-sub">.xlsx, .xls 파일 지원</div>
@@ -150,13 +192,20 @@
       <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
       <div class="progress-text" id="progressText">업로드 중...</div>
     </div>
-    <button class="btn" id="uploadBtn" style="display:none;margin-top:1rem" onclick="uploadToDB()">DB에 저장하기</button>
+    <button class="btn" id="uploadBtn" style="display:none;margin-top:1rem">DB에 저장하기</button>
     <div class="msg" id="uploadMsg"></div>
   </div>
 
   <div class="section">
+    <div class="section-title">일괄 출력</div>
+    <p style="font-size:13px;color:#888;margin-bottom:1rem;line-height:1.6;">DB에 등록된 모든 학교의 교부확인서를 한 번에 출력합니다.<br>인쇄 창에서 PDF로 저장하시면 됩니다.</p>
+    <button class="btn" id="bulkPrintBtn">전체 교부확인서 일괄 출력</button>
+    <div class="msg" id="bulkMsg"></div>
+  </div>
+
+  <div class="section">
     <div class="section-title">DB 관리</div>
-    <button class="btn-danger" onclick="deleteAllData()">DB 데이터 즉시 폐기</button>
+    <button class="btn-danger" id="deleteBtn">DB 데이터 즉시 폐기</button>
     <div class="msg" id="deleteMsg"></div>
   </div>
 
@@ -164,255 +213,321 @@
 </div>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-  const supabase = createClient(
-    'https://kjhububjqsvitkaagfzd.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqaHVidWJqcXN2aXRrYWFnZnpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTMyNDEsImV4cCI6MjA5MjMyOTI0MX0.IKD1hprLvoDCwk-oQrv9KAscfZu93RwKaLFkY2rOfUw'
-  );
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-  let parsedData = [];
+var supabase = createClient(
+  'https://kjhububjqsvitkaagfzd.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqaHVidWJqcXN2aXRrYWFnZnpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTMyNDEsImV4cCI6MjA5MjMyOTI0MX0.IKD1hprLvoDCwk-oQrv9KAscfZu93RwKaLFkY2rOfUw'
+);
 
-  // 시간 옵션 생성 (0~23시)
-  function buildHourOptions(selId, defaultVal) {
-    const sel = document.getElementById(selId);
-    for (let h = 0; h < 24; h++) {
-      const hh = String(h).padStart(2,'0');
-      const opt = document.createElement('option');
-      opt.value = hh; opt.textContent = hh + '시';
-      if (hh === defaultVal) opt.selected = true;
-      sel.appendChild(opt);
-    }
-  }
-  buildHourOptions('startHour', '09');
-  buildHourOptions('endHour',   '18');
+var parsedData = [];
+var SESSION_KEY = 'admin_auth';
+var SESSION_DURATION = 10 * 60 * 1000;
 
-  // KST 문자열 파싱 (YYYY-MM-DDTHH:MM 또는 ISO 형식 모두 처리)
-  function parseKST(str) {
-    if (!str) return null;
-    // 이미 KST 형식 (YYYY-MM-DDTHH:MM)
-    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str)) return str;
-    // ISO 형식 (UTC) → KST 변환
-    const d = new Date(str);
-    if (isNaN(d)) return null;
-    const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
-    const pad = n => String(n).padStart(2,'0');
-    return `${kst.getUTCFullYear()}-${pad(kst.getUTCMonth()+1)}-${pad(kst.getUTCDate())}T${pad(kst.getUTCHours())}:${pad(kst.getUTCMinutes())}`;
-  }
+function padZ(n) { return String(n).padStart(2, '0'); }
 
-  function fmtDisplay(kstStr) {
-    if (!kstStr) return '-';
-    return kstStr.replace('T', ' ');
-  }
+function checkSession() {
+  try {
+    var stored = sessionStorage.getItem(SESSION_KEY);
+    if (!stored) return false;
+    var obj = JSON.parse(stored);
+    return Date.now() - obj.time <= SESSION_DURATION;
+  } catch(e) { return false; }
+}
 
-  async function loadPeriod() {
-    const { data } = await supabase.from('settings').select('*');
-    if (data?.length) {
-      const s = data.find(r => r.key === 'start_date');
-      const e = data.find(r => r.key === 'end_date');
-      const sv = parseKST(s?.value);
-      const ev = parseKST(e?.value);
-      if (sv) {
-        const [sd, st] = sv.split('T');
-        document.getElementById('startDate').value = sd;
-        document.getElementById('startHour').value = st.slice(0,2);
-      }
-      if (ev) {
-        const [ed, et] = ev.split('T');
-        document.getElementById('endDate').value = ed;
-        document.getElementById('endHour').value = et.slice(0,2);
-      }
-      document.getElementById('currentPeriod').textContent = sv && ev
-        ? `현재 발급 기간: ${fmtDisplay(sv)} ~ ${fmtDisplay(ev)} (KST)`
-        : '설정된 발급 기간이 없습니다.';
-    } else {
-      document.getElementById('currentPeriod').textContent = '설정된 발급 기간이 없습니다.';
-    }
-  }
+function saveSession() {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ time: Date.now() }));
+}
+
+function showAdmin() {
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('adminWrap').style.display = 'block';
   loadPeriod();
+}
 
-  window.savePeriod = async function() {
-    const start = document.getElementById('startDate').value;
-    const sH    = document.getElementById('startHour').value;
-    const end   = document.getElementById('endDate').value;
-    const eH    = document.getElementById('endHour').value;
-    const btn   = document.getElementById('savePeriodBtn');
+function showMsg(id, text, type) {
+  var m = document.getElementById(id);
+  m.textContent = text;
+  m.className = 'msg ' + type;
+  m.style.display = text ? 'block' : 'none';
+}
 
-    if (!start || !end) { showMsg('periodMsg', '날짜를 모두 선택해 주세요.', 'error'); return; }
-    const startVal = `${start}T${sH}:00`;
-    const endVal   = `${end}T${eH}:00`;
-    if (startVal >= endVal) { showMsg('periodMsg', '종료일시가 시작일시보다 빠르거나 같습니다.', 'error'); return; }
+function parseKST(str) {
+  if (!str) return null;
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(str) && str.indexOf('Z') === -1) return str.slice(0, 16);
+  var d = new Date(str);
+  if (isNaN(d)) return null;
+  var kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  return kst.getUTCFullYear() + '-' + padZ(kst.getUTCMonth()+1) + '-' + padZ(kst.getUTCDate()) + 'T' + padZ(kst.getUTCHours()) + ':' + padZ(kst.getUTCMinutes());
+}
 
-    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>저장 중...';
-    for (const [key, value] of [['start_date', startVal], ['end_date', endVal]]) {
-      await supabase.from('settings').upsert({ key, value }, { onConflict: 'key' });
-    }
-    document.getElementById('currentPeriod').textContent = `현재 발급 기간: ${fmtDisplay(startVal)} ~ ${fmtDisplay(endVal)} (KST)`;
-    showMsg('periodMsg', '✓ 발급 기간이 저장되었습니다.', 'success');
-    btn.disabled = false; btn.innerHTML = '발급 기간 저장';
-  };
-
-  // 엑셀 업로드
-  const uploadArea = document.getElementById('uploadArea');
-  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag'); });
-  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag'));
-  uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.classList.remove('drag'); handleFile(e.dataTransfer.files[0]); });
-  document.getElementById('fileInput').addEventListener('change', e => handleFile(e.target.files[0]));
-
-  function formatAmount(val) {
-    if (!val && val !== 0) return '';
-    const num = parseInt(String(val).replace(/[^0-9]/g, ''), 10);
-    if (isNaN(num)) return String(val);
-    return num.toLocaleString('ko-KR');
+// 시간 옵션 생성
+function buildHourOptions(selId, defaultVal) {
+  var sel = document.getElementById(selId);
+  for (var h = 0; h < 24; h++) {
+    var hh = padZ(h);
+    var opt = document.createElement('option');
+    opt.value = hh;
+    opt.textContent = hh + '시';
+    if (hh === defaultVal) opt.selected = true;
+    sel.appendChild(opt);
   }
+}
+buildHourOptions('startHour', '09');
+buildHourOptions('endHour', '18');
 
-  function handleFile(file) {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      const wb = XLSX.read(e.target.result, { type: 'array' });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-      parsedData = rows.map(r => ({
-        school_name:  String(r['학교명'] || '').trim(),
+// 세션 확인
+if (checkSession()) { showAdmin(); }
+
+// 비밀번호 토글
+document.getElementById('pwToggle').addEventListener('click', function() {
+  var input = document.getElementById('adminPw');
+  input.type = input.type === 'password' ? 'text' : 'password';
+});
+
+// 로그인
+async function doLogin() {
+  var pw  = document.getElementById('adminPw').value.trim();
+  var btn = document.getElementById('loginBtn');
+  showMsg('loginMsg', '', '');
+  if (!pw) { showMsg('loginMsg', '비밀번호를 입력해 주세요.', 'error'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>확인 중...';
+  var result = await supabase.from('settings').select('value').eq('key', 'admin_password').single();
+  btn.disabled = false;
+  btn.innerHTML = '로그인';
+  if (result.error || !result.data) { showMsg('loginMsg', '인증 정보를 불러오지 못했습니다.', 'error'); return; }
+  if (pw !== result.data.value) { showMsg('loginMsg', '비밀번호가 올바르지 않습니다.', 'error'); return; }
+  saveSession();
+  showAdmin();
+}
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('adminPw').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+
+// 발급 기간 불러오기
+async function loadPeriod() {
+  var result = await supabase.from('settings').select('*');
+  if (result.data && result.data.length) {
+    var s = null, e = null;
+    result.data.forEach(function(r) {
+      if (r.key === 'start_date') s = r;
+      if (r.key === 'end_date') e = r;
+    });
+    var sv = s ? parseKST(s.value) : null;
+    var ev = e ? parseKST(e.value) : null;
+    if (sv) { var sp = sv.split('T'); document.getElementById('startDate').value = sp[0]; document.getElementById('startHour').value = sp[1].slice(0,2); }
+    if (ev) { var ep = ev.split('T'); document.getElementById('endDate').value = ep[0]; document.getElementById('endHour').value = ep[1].slice(0,2); }
+    document.getElementById('currentPeriod').textContent = sv && ev
+      ? '현재 발급 기간: ' + sv.replace('T',' ') + ' ~ ' + ev.replace('T',' ') + ' (KST)'
+      : '설정된 발급 기간이 없습니다.';
+  } else {
+    document.getElementById('currentPeriod').textContent = '설정된 발급 기간이 없습니다.';
+  }
+}
+
+// 발급 기간 저장
+document.getElementById('savePeriodBtn').addEventListener('click', async function() {
+  var start = document.getElementById('startDate').value;
+  var sH    = document.getElementById('startHour').value;
+  var end   = document.getElementById('endDate').value;
+  var eH    = document.getElementById('endHour').value;
+  var btn   = this;
+  if (!start || !end) { showMsg('periodMsg', '날짜를 모두 선택해 주세요.', 'error'); return; }
+  var startVal = start + 'T' + sH + ':00';
+  var endVal   = end   + 'T' + eH + ':00';
+  if (startVal >= endVal) { showMsg('periodMsg', '종료일시가 시작일시보다 빠르거나 같습니다.', 'error'); return; }
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>저장 중...';
+  await supabase.from('settings').upsert({ key: 'start_date', value: startVal }, { onConflict: 'key' });
+  await supabase.from('settings').upsert({ key: 'end_date',   value: endVal   }, { onConflict: 'key' });
+  document.getElementById('currentPeriod').textContent = '현재 발급 기간: ' + startVal.replace('T',' ') + ' ~ ' + endVal.replace('T',' ') + ' (KST)';
+  showMsg('periodMsg', '✓ 발급 기간이 저장되었습니다.', 'success');
+  btn.disabled = false; btn.innerHTML = '발급 기간 저장';
+});
+
+// 샘플 엑셀
+document.getElementById('sampleBtn').addEventListener('click', function() {
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet([
+    ['학교명','NEIS번호','사업명','교부금액','교부일'],
+    ['서울공업고등학교','B100000001','2026년 글로벌 현장학습',5000000,'2026-04-01'],
+    ['성동공업고등학교','B100000002','2026년 글로벌 현장학습',4500000,'2026-04-01'],
+  ]);
+  ws['D2'].t = 'n'; ws['D3'].t = 'n';
+  XLSX.utils.book_append_sheet(wb, ws, '교부확인서');
+  XLSX.writeFile(wb, '교부확인서_샘플.xlsx');
+});
+
+// 엑셀 업로드
+function formatAmount(val) {
+  if (!val && val !== 0) return '';
+  var num = parseInt(String(val).replace(/[^0-9]/g, ''), 10);
+  return isNaN(num) ? String(val) : num.toLocaleString('ko-KR');
+}
+
+document.getElementById('uploadArea').addEventListener('click', function() { document.getElementById('fileInput').click(); });
+document.getElementById('uploadArea').addEventListener('dragover', function(e) { e.preventDefault(); this.style.borderColor='#4056c8'; this.style.background='#f7f8ff'; });
+document.getElementById('uploadArea').addEventListener('dragleave', function() { this.style.borderColor=''; this.style.background=''; });
+document.getElementById('uploadArea').addEventListener('drop', function(e) { e.preventDefault(); this.style.borderColor=''; this.style.background=''; handleFile(e.dataTransfer.files[0]); });
+document.getElementById('fileInput').addEventListener('change', function(e) { handleFile(e.target.files[0]); });
+
+function handleFile(file) {
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var wb = XLSX.read(e.target.result, { type: 'array' });
+    var ws = wb.Sheets[wb.SheetNames[0]];
+    var rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+    parsedData = rows.map(function(r) {
+      return {
+        school_name:  String(r['학교명']  || '').trim(),
         neis_number:  String(r['NEIS번호'] || '').trim(),
-        project_name: String(r['사업명'] || '').trim(),
+        project_name: String(r['사업명']  || '').trim(),
         grant_amount: formatAmount(r['교부금액']),
-        grant_date:   String(r['교부일'] || '').trim(),
-      })).filter(r => r.school_name && r.neis_number);
-      renderPreview(parsedData);
-    };
-    reader.readAsArrayBuffer(file);
-  }
-
-  function renderPreview(data) {
-    const tbody = document.getElementById('previewBody');
-    tbody.innerHTML = data.slice(0,5).map(r =>
-      `<tr><td>${r.school_name}</td><td>${r.neis_number}</td><td>${r.project_name}</td><td>${r.grant_amount}</td><td>${r.grant_date}</td></tr>`
-    ).join('');
-    if (data.length > 5) tbody.innerHTML += `<tr><td colspan="5" style="text-align:center;color:#aaa;font-size:11px;">... 외 ${data.length-5}개</td></tr>`;
-    document.getElementById('countBadge').textContent = data.length + '개';
+        grant_date:   String(r['교부일']  || '').trim(),
+      };
+    }).filter(function(r) { return r.school_name && r.neis_number; });
+    var tbody = document.getElementById('previewBody');
+    tbody.innerHTML = parsedData.slice(0,5).map(function(r) {
+      return '<tr><td>'+r.school_name+'</td><td>'+r.neis_number+'</td><td>'+r.project_name+'</td><td>'+r.grant_amount+'</td><td>'+r.grant_date+'</td></tr>';
+    }).join('');
+    if (parsedData.length > 5) tbody.innerHTML += '<tr><td colspan="5" style="text-align:center;color:#aaa;font-size:11px;">... 외 '+(parsedData.length-5)+'개</td></tr>';
+    document.getElementById('countBadge').textContent = parsedData.length + '개';
     document.getElementById('preview').style.display = 'block';
     document.getElementById('uploadBtn').style.display = 'block';
-  }
-
-  // 세션 체크 (10분)
-  var SESSION_KEY = 'admin_auth';
-  var SESSION_DURATION = 10 * 60 * 1000;
-
-  function checkSession() {
-    try {
-      var stored = sessionStorage.getItem(SESSION_KEY);
-      if (!stored) return false;
-      var obj = JSON.parse(stored);
-      if (Date.now() - obj.time > SESSION_DURATION) {
-        sessionStorage.removeItem(SESSION_KEY);
-        return false;
-      }
-      return true;
-    } catch(e) { return false; }
-  }
-
-  function saveSession() {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ time: Date.now() }));
-  }
-
-  function showAdmin() {
-    document.getElementById('loginWrap').style.display = 'none';
-    document.getElementById('adminWrap').style.display = 'block';
-    loadPeriod();
-  }
-
-  // 페이지 로드 시 세션 확인
-  if (checkSession()) { showAdmin(); }
-
-  window.togglePw = function() {
-    var input = document.getElementById('adminPw');
-    input.type = input.type === 'password' ? 'text' : 'password';
   };
+  reader.readAsArrayBuffer(file);
+}
 
-  window.doLogin = async function() {
-    var pw  = document.getElementById('adminPw').value.trim();
-    var btn = document.getElementById('loginBtn');
-    var msg = document.getElementById('loginMsg');
-    msg.style.display = 'none';
+document.getElementById('uploadBtn').addEventListener('click', async function() {
+  if (!parsedData.length) return;
+  var btn = this;
+  var progressWrap = document.getElementById('progressWrap');
+  var progressBar  = document.getElementById('progressBar');
+  var progressText = document.getElementById('progressText');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>저장 중...';
+  progressWrap.style.display = 'block';
+  var delResult = await supabase.from('grant_certificates').delete().gte('created_at', '2000-01-01');
+  if (delResult.error) { showMsg('uploadMsg', '기존 데이터 삭제 실패: ' + delResult.error.message, 'error'); btn.disabled = false; btn.innerHTML = 'DB에 저장하기'; return; }
+  var BATCH = 10;
+  for (var i = 0; i < parsedData.length; i += BATCH) {
+    var chunk = parsedData.slice(i, i + BATCH);
+    var insResult = await supabase.from('grant_certificates').insert(chunk);
+    if (insResult.error) { showMsg('uploadMsg', '저장 실패: ' + insResult.error.message, 'error'); btn.disabled = false; btn.innerHTML = 'DB에 저장하기'; return; }
+    var pct = Math.round(((i + chunk.length) / parsedData.length) * 100);
+    progressBar.style.width = pct + '%';
+    progressText.textContent = (i + chunk.length) + ' / ' + parsedData.length + '개 저장 중...';
+  }
+  progressBar.style.width = '100%';
+  progressText.textContent = '완료!';
+  showMsg('uploadMsg', '✓ ' + parsedData.length + '개 학교 데이터가 성공적으로 저장되었습니다. 잠시 후 새로고침됩니다.', 'success');
+  btn.disabled = false; btn.innerHTML = 'DB에 저장하기';
+  setTimeout(function() { location.reload(); }, 2000);
+});
 
-    if (!pw) { msg.textContent = '비밀번호를 입력해 주세요.'; msg.className = 'msg error'; msg.style.display = 'block'; return; }
-
-    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>확인 중...';
-
-    var result = await supabase.from('settings').select('value').eq('key', 'admin_password').single();
-
-    btn.disabled = false; btn.innerHTML = '로그인';
-
-    if (result.error || !result.data) {
-      msg.textContent = '인증 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
-      msg.className = 'msg error'; msg.style.display = 'block'; return;
-    }
-
-    if (pw !== result.data.value) {
-      msg.textContent = '비밀번호가 올바르지 않습니다.';
-      msg.className = 'msg error'; msg.style.display = 'block'; return;
-    }
-
-    saveSession();
-    showAdmin();
-  };
-
-  document.getElementById('adminPw').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') window.doLogin();
+// 일괄 출력
+document.getElementById('bulkPrintBtn').addEventListener('click', async function() {
+  var btn = this;
+  showMsg('bulkMsg', '', '');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>데이터 불러오는 중...';
+  var result = await supabase.from('grant_certificates').select('*').order('school_name');
+  if (result.error || !result.data || result.data.length === 0) {
+    showMsg('bulkMsg', '출력할 데이터가 없습니다.', 'error');
+    btn.disabled = false; btn.innerHTML = '전체 교부확인서 일괄 출력'; return;
+  }
+  var signResult = await supabase.storage.from('seal').createSignedUrl('seal.png', 120);
+  var sealUrl = (!signResult.error && signResult.data) ? signResult.data.signedUrl : '';
+  var today = new Date();
+  var dateStr = today.getFullYear() + '년 ' + padZ(today.getMonth()+1) + '월 ' + padZ(today.getDate()) + '일';
+  var timeStr = padZ(today.getHours()) + ':' + padZ(today.getMinutes()) + ':' + padZ(today.getSeconds());
+  var wrap = document.getElementById('bulkCertWrap');
+  wrap.innerHTML = '';
+  result.data.forEach(function(d) {
+    var page = document.createElement('div');
+    page.className = 'cert-page';
+    page.innerHTML =
+      '<div class="cp-header">' +
+        '<div class="cp-header-top"><span class="cp-org">서울특별시교육청</span><span class="cp-issue-no">발급일: ' + dateStr + ' ' + timeStr + '</span></div>' +
+        '<div class="cp-title">교 부 확 인 서</div>' +
+        '<div class="cp-title-en">Certificate of Budget Grant</div>' +
+      '</div>' +
+      '<p class="cp-confirm">아래와 같이 <strong>교부금이 확정</strong>되었음을 확인합니다.</p>' +
+      '<hr class="cp-divider">' +
+      '<table class="cp-table">' +
+        '<tr><td class="lbl">사 업 명</td><td class="val">' + (d.project_name||'-') + '</td></tr>' +
+        '<tr><td class="lbl">학 교 명</td><td class="val">' + (d.school_name||'-') + '</td></tr>' +
+        '<tr><td class="lbl">NEIS 번호</td><td class="val">' + (d.neis_number||'-') + '</td></tr>' +
+        '<tr><td class="lbl">교 부 금 액</td><td class="val amount">' + (d.grant_amount||'-') + ' 원</td></tr>' +
+        '<tr><td class="lbl">교 부 일</td><td class="val">' + (d.grant_date||'-') + '</td></tr>' +
+      '</table>' +
+      '<div class="cp-notice">※ 본 확인서는 서울특별시교육청에서 발급한 공식 문서입니다.<br>※ 위 교부금은 사업 목적에 맞게 집행하여야 하며, 미사용 잔액은 반납하여야 합니다.<br>※ 문의: 교육청 담당자 | ☎ 02-6033-6134</div>' +
+      '<div class="cp-sign"><div class="cp-sign-text">서울특별시교육청<br>교육감</div>' +
+        '<div class="cp-sign-box"><span class="cp-sign-label">(직 인)</span>' +
+        (sealUrl ? '<img src="' + sealUrl + '" alt="" aria-hidden="true">' : '') +
+        '</div></div>' +
+      '<div class="cp-date">' + dateStr + '</div>' +
+      '<div class="cp-issuer">서울특별시교육청</div>' +
+      '<div class="cp-footer"><span>Seoul Metropolitan Office of Education</span><span>' + dateStr + ' ' + timeStr + ' 발급</span></div>';
+    wrap.appendChild(page);
   });
-
-  window.uploadToDB = async function() {
-    if (!parsedData.length) return;
-    const btn = document.getElementById('uploadBtn');
-    const progressWrap = document.getElementById('progressWrap');
-    const progressBar  = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>저장 중...';
-    progressWrap.style.display = 'block';
-
-    const { error: delErr } = await supabase.from('grant_certificates').delete().gte('created_at', '2000-01-01');
-    if (delErr) { showMsg('uploadMsg', '기존 데이터 삭제 실패: ' + delErr.message, 'error'); btn.disabled = false; btn.innerHTML = 'DB에 저장하기'; return; }
-
-    const BATCH = 10;
-    for (let i = 0; i < parsedData.length; i += BATCH) {
-      const chunk = parsedData.slice(i, i + BATCH);
-      const { error } = await supabase.from('grant_certificates').insert(chunk);
-      if (error) { showMsg('uploadMsg', '저장 실패: ' + error.message, 'error'); btn.disabled = false; btn.innerHTML = 'DB에 저장하기'; return; }
-      const pct = Math.round(((i + chunk.length) / parsedData.length) * 100);
-      progressBar.style.width = pct + '%';
-      progressText.textContent = `${i + chunk.length} / ${parsedData.length}개 저장 중...`;
-    }
-    progressBar.style.width = '100%';
-    progressText.textContent = '완료!';
-    showMsg('uploadMsg', '✓ ' + parsedData.length + '개 학교 데이터가 성공적으로 저장되었습니다. 잠시 후 새로고침됩니다.', 'success');
-    btn.disabled = false; btn.innerHTML = 'DB에 저장하기';
-    setTimeout(() => location.reload(), 2000);
+  btn.disabled = false; btn.innerHTML = '전체 교부확인서 일괄 출력';
+  showMsg('bulkMsg', '✓ ' + result.data.length + '개 교부확인서 준비 완료. 인쇄 창에서 PDF로 저장하세요.', 'success');
+  document.title = '교부확인서_일괄출력_' + dateStr;
+  // 별도 창에서 인쇄 (빈 페이지 방지)
+  var printWin = window.open('', '_blank', 'width=900,height=700');
+  printWin.document.write('<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">');
+  printWin.document.write('<title>교부확인서_일괄출력_' + dateStr + '_' + timeStr.replace(/:/g, '') + '</title>');
+  printWin.document.write('<style>');
+  printWin.document.write('@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap");');
+  printWin.document.write('*{box-sizing:border-box;margin:0;padding:0;}');
+  printWin.document.write('body{font-family:"Noto Sans KR",sans-serif;}');
+  printWin.document.write('@page{size:A4;margin:0;}');
+  printWin.document.write('.cert-page{width:210mm;height:297mm;position:relative;overflow:hidden;page-break-after:always;break-after:page;}');
+  printWin.document.write('.cert-page:last-child{page-break-after:avoid;break-after:avoid;}');
+  printWin.document.write('.cp-header{background:#1e3a8a;padding:32px 48px 28px;color:#fff;}');
+  printWin.document.write('.cp-header-top{display:flex;justify-content:space-between;margin-bottom:8px;}');
+  printWin.document.write('.cp-org{font-size:11px;color:#93c5fd;}');
+  printWin.document.write('.cp-issue-no{font-size:11px;color:#93c5fd;}');
+  printWin.document.write('.cp-title{font-size:28px;font-weight:700;letter-spacing:8px;text-align:center;margin:8px 0 4px;color:#fff;}');
+  printWin.document.write('.cp-title-en{font-size:11px;color:#93c5fd;text-align:center;letter-spacing:2px;}');
+  printWin.document.write('.cp-confirm{padding:24px 48px 0;font-size:13px;color:#374151;}');
+  printWin.document.write('.cp-confirm strong{color:#1e3a8a;}');
+  printWin.document.write('.cp-divider{margin:16px 48px;border:none;border-top:2px solid #1e3a8a;}');
+  printWin.document.write('.cp-table{width:calc(100% - 96px);margin:0 48px;border-collapse:collapse;}');
+  printWin.document.write('.cp-table tr{border-bottom:0.5px solid #e5e7eb;}');
+  printWin.document.write('.cp-table tr:first-child{border-top:0.5px solid #e5e7eb;}');
+  printWin.document.write('.cp-table td.lbl{background:#eff6ff;color:#1e3a8a;font-weight:700;font-size:12px;padding:14px 20px;width:140px;letter-spacing:2px;}');
+  printWin.document.write('.cp-table td.val{font-size:13px;color:#111827;padding:14px 24px;}');
+  printWin.document.write('.cp-table td.val.amount{font-size:15px;font-weight:700;color:#1e3a8a;}');
+  printWin.document.write('.cp-notice{margin:28px 48px 0;background:#f0f9ff;border-left:3px solid #1e3a8a;padding:12px 16px;font-size:11px;color:#374151;line-height:1.8;}');
+  printWin.document.write('.cp-sign{margin:32px 48px 0;display:flex;justify-content:flex-end;align-items:center;gap:20px;}');
+  printWin.document.write('.cp-sign-text{font-size:13px;color:#374151;text-align:right;line-height:2.2;}');
+  printWin.document.write('.cp-sign-box{width:113px;height:113px;border:1px solid #d1d5db;border-radius:2px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;}');
+  printWin.document.write('.cp-sign-label{font-size:22px;color:#9ca3af;position:absolute;z-index:0;}');
+  printWin.document.write('.cp-sign-box img{width:113px;height:113px;object-fit:contain;mix-blend-mode:multiply;opacity:0.9;position:absolute;top:0;left:0;z-index:1;}');
+  printWin.document.write('.cp-date{text-align:center;margin:24px 48px 0;font-size:14px;color:#374151;letter-spacing:2px;}');
+  printWin.document.write('.cp-issuer{text-align:center;margin-top:8px;font-size:16px;font-weight:700;color:#1e3a8a;letter-spacing:4px;}');
+  printWin.document.write('.cp-footer{position:absolute;bottom:0;left:0;right:0;background:#1e3a8a;padding:10px 48px;display:flex;justify-content:space-between;}');
+  printWin.document.write('.cp-footer span{font-size:9px;color:#93c5fd;}');
+  printWin.document.write('</style></head><body>');
+  printWin.document.write(wrap.innerHTML);
+  printWin.document.write('</body></html>');
+  printWin.document.close();
+  printWin.onload = function() {
+    printWin.focus();
+    printWin.print();
+    printWin.onafterprint = function() { printWin.close(); };
   };
+  wrap.innerHTML = '';
+  document.title = '교부확인서 관리자';
+});
 
-  window.downloadSample = function() {
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet([
-      ['학교명', 'NEIS번호', '사업명', '교부금액', '교부일'],
-      ['서울공업고등학교', 'B100000001', '2026년 글로벌 현장학습', 5000000, '2026-04-01'],
-      ['성동공업고등학교', 'B100000002', '2026년 글로벌 현장학습', 4500000, '2026-04-01'],
-    ]);
-    ws['D2'].t = 'n'; ws['D3'].t = 'n';
-    XLSX.utils.book_append_sheet(wb, ws, '교부확인서');
-    XLSX.writeFile(wb, '교부확인서_샘플.xlsx');
-  };
-
-  window.deleteAllData = async function() {
-    if (!confirm('정말 모든 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
-    const { error } = await supabase.from('grant_certificates').delete().gte('created_at', '2000-01-01');
-    if (error) { showMsg('deleteMsg', '삭제 실패: ' + error.message, 'error'); return; }
-    showMsg('deleteMsg', '✓ 모든 데이터가 삭제되었습니다.', 'success');
-  };
-
-  function showMsg(id, text, type) {
-    const m = document.getElementById(id);
-    m.textContent = text; m.className = 'msg ' + type; m.style.display = text ? 'block' : 'none';
-  }
+// DB 폐기
+document.getElementById('deleteBtn').addEventListener('click', async function() {
+  if (!confirm('정말 모든 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
+  var result = await supabase.from('grant_certificates').delete().gte('created_at', '2000-01-01');
+  if (result.error) { showMsg('deleteMsg', '삭제 실패: ' + result.error.message, 'error'); return; }
+  showMsg('deleteMsg', '✓ 모든 데이터가 삭제되었습니다.', 'success');
+});
 </script>
 </body>
 </html>
