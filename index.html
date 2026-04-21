@@ -5,17 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>교부확인서 발급</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif; background: #f5f6f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
-  .container { background: #fff; border-radius: 16px; border: 0.5px solid #e0e0e0; padding: 2.5rem 2.5rem 2rem; max-width: 480px; width: 100%; }
+  body { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif; background: #f5f6f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
+  .search-wrap { background: #fff; border-radius: 16px; border: 0.5px solid #e0e0e0; padding: 2.5rem 2.5rem 2rem; max-width: 480px; width: 100%; }
   .badge { display: inline-block; background: #eef2ff; color: #4056c8; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem; }
-  h1 { font-size: 18px; font-weight: 600; color: #1a1a2e; line-height: 1.5; margin-bottom: 0.35rem; }
+  h1 { font-size: 18px; font-weight: 700; color: #1a1a2e; line-height: 1.5; margin-bottom: 0.35rem; }
   .subtitle { font-size: 13px; color: #888; margin-bottom: 1.75rem; line-height: 1.6; }
   label { display: block; font-size: 13px; font-weight: 500; color: #444; margin-bottom: 6px; }
   input { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: border 0.2s; background: #fafafa; color: #1a1a2e; }
   input:focus { border-color: #4056c8; background: #fff; }
   .field { margin-bottom: 1rem; }
-  .btn { width: 100%; padding: 12px; background: #4056c8; color: #fff; font-size: 15px; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s, transform 0.1s; }
+  .btn { width: 100%; padding: 12px; background: #4056c8; color: #fff; font-size: 15px; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s, transform 0.1s; }
   .btn:hover { background: #3247b5; }
   .btn:active { transform: scale(0.98); }
   .btn:disabled { background: #b0b8e0; cursor: not-allowed; }
@@ -25,42 +26,119 @@
   .period-info { background: #f7f8ff; border: 0.5px solid #d0d6f5; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #5566aa; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: #4056c8; flex-shrink: 0; }
   .expired-wrap { text-align: center; padding: 1rem 0; display: none; }
-  .expired-icon { font-size: 36px; margin-bottom: 0.75rem; }
-  .expired-title { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 0.5rem; }
+  .expired-title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 0.5rem; }
   .expired-desc { font-size: 13px; color: #888; line-height: 1.8; }
+  .retry-btn { margin-top: 12px; padding: 8px 20px; background: #4056c8; color: #fff; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; }
   .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.5); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .footer { margin-top: 1.5rem; font-size: 11px; color: #bbb; text-align: center; }
+  #certWrap { display: none; }
+
+  @media print {
+    @page { size: A4; margin: 0; }
+    body { background: #fff; padding: 0; display: block; }
+    .search-wrap { display: none !important; }
+    #certWrap { display: block !important; }
+    .cert-sign-box { width: 30mm !important; height: 30mm !important; }
+    .cert-sign-box img { width: 30mm !important; height: 30mm !important; }
+  }
+
+  .cert { width: 210mm; min-height: 297mm; margin: 0 auto; font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif; background: #fff; position: relative; }
+  .cert-header { background: #1e3a8a; padding: 32px 48px 28px; color: #fff; }
+  .cert-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .cert-org { font-size: 11px; color: #93c5fd; letter-spacing: 1px; }
+  .cert-issue-no { font-size: 11px; color: #93c5fd; }
+  .cert-title { font-size: 28px; font-weight: 700; letter-spacing: 8px; text-align: center; margin: 8px 0 4px; }
+  .cert-title-en { font-size: 11px; color: #93c5fd; text-align: center; letter-spacing: 2px; }
+  .cert-confirm { padding: 24px 48px 0; font-size: 13px; color: #374151; }
+  .cert-confirm strong { color: #1e3a8a; }
+  .cert-divider { margin: 16px 48px; border: none; border-top: 2px solid #1e3a8a; }
+  .cert-table { width: calc(100% - 96px); margin: 0 48px; border-collapse: collapse; }
+  .cert-table tr { border-bottom: 0.5px solid #e5e7eb; }
+  .cert-table tr:first-child { border-top: 0.5px solid #e5e7eb; }
+  .cert-table td.lbl { background: #eff6ff; color: #1e3a8a; font-weight: 700; font-size: 12px; padding: 14px 20px; width: 140px; letter-spacing: 2px; }
+  .cert-table td.val { font-size: 13px; color: #111827; padding: 14px 24px; }
+  .cert-table td.val.amount { font-size: 15px; font-weight: 700; color: #1e3a8a; }
+  .cert-notice { margin: 28px 48px 0; background: #f0f9ff; border-left: 3px solid #1e3a8a; padding: 12px 16px; font-size: 11px; color: #374151; line-height: 1.8; }
+  .cert-sign { margin: 32px 48px 0; display: flex; justify-content: flex-end; align-items: center; gap: 20px; }
+  .cert-sign-text { font-size: 13px; color: #374151; text-align: right; line-height: 2.2; }
+  .cert-sign-box { width: 113px; height: 113px; border: 1px solid #d1d5db; border-radius: 2px; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; }
+  .cert-sign-label { font-size: 11px; color: #9ca3af; position: relative; z-index: 1; }
+  .cert-sign-box img { width: 113px; height: 113px; object-fit: contain; mix-blend-mode: multiply; opacity: 0.9; position: absolute; top: 0; left: 0; }
+  .cert-date { text-align: center; margin: 24px 48px 0; font-size: 14px; color: #374151; letter-spacing: 2px; }
+  .cert-issuer { text-align: center; margin-top: 8px; font-size: 16px; font-weight: 700; color: #1e3a8a; letter-spacing: 4px; }
+  .cert-footer { position: absolute; bottom: 0; left: 0; right: 0; background: #1e3a8a; padding: 10px 48px; display: flex; justify-content: space-between; align-items: center; }
+  .cert-footer span { font-size: 9px; color: #93c5fd; }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="badge">2026 글로벌 현장학습 사업단</div>
+<div class="search-wrap">
+  <div class="badge" id="projectBadge">2026 글로벌 현장학습</div>
   <h1>교부확인서 발급</h1>
-  <p class="subtitle">학교명과 NEIS 번호를 입력하시면<br>교부확인서 PDF가 자동으로 다운로드됩니다.</p>
+  <p class="subtitle">학교명과 NEIS 번호를 입력하시면<br>교부확인서를 출력하실 수 있습니다.</p>
   <div class="period-info">
     <span class="dot"></span>
-    <span>발급 기간: <strong>2026.04.01 ~ 2026.06.30</strong></span>
+    <span id="periodText">발급 기간을 불러오는 중...</span>
   </div>
-  <div id="formSection">
+  <div id="formSection" style="display:none">
     <div class="field">
       <label for="schoolName">학교명</label>
-      <input type="text" id="schoolName" placeholder="예) 서울○○초등학교" autocomplete="off">
+      <input type="text" id="schoolName" placeholder="예) 서울○○고등학교" autocomplete="off">
     </div>
     <div class="field">
       <label for="neisNum">NEIS 번호</label>
       <input type="text" id="neisNum" placeholder="예) B100000000" autocomplete="off">
     </div>
-    <button class="btn" id="submitBtn">교부확인서 다운로드</button>
+    <button class="btn" id="submitBtn">교부확인서 출력</button>
     <div class="msg" id="msgBox"></div>
   </div>
   <div class="expired-wrap" id="expiredSection">
-    <div class="expired-icon">🔒</div>
+    <div style="font-size:36px;margin-bottom:.75rem">🔒</div>
     <div class="expired-title">발급 기간이 아닙니다</div>
-    <div class="expired-desc">교부확인서 발급 기간은<br><strong>2026년 4월 1일 ~ 6월 30일</strong>입니다.<br>기간 내에 다시 접속해 주세요.</div>
+    <div class="expired-desc" id="expiredDesc"></div>
   </div>
   <div class="footer">문의: 교육청 담당자 | ☎ 02-6033-6134</div>
+</div>
+
+<div id="certWrap">
+  <div class="cert">
+    <div class="cert-header">
+      <div class="cert-header-top">
+        <span class="cert-org">서울특별시교육청</span>
+        <span class="cert-issue-no" id="certIssueNo"></span>
+      </div>
+      <div class="cert-title">교 부 확 인 서</div>
+      <div class="cert-title-en">Certificate of Budget Grant</div>
+    </div>
+    <p class="cert-confirm">아래와 같이 <strong>교부금이 확정</strong>되었음을 확인합니다.</p>
+    <hr class="cert-divider">
+    <table class="cert-table">
+      <tr><td class="lbl">사 업 명</td><td class="val" id="cProjectName"></td></tr>
+      <tr><td class="lbl">학 교 명</td><td class="val" id="cSchoolName"></td></tr>
+      <tr><td class="lbl">NEIS 번호</td><td class="val" id="cNeisNumber"></td></tr>
+      <tr><td class="lbl">교 부 금 액</td><td class="val amount" id="cGrantAmount"></td></tr>
+      <tr><td class="lbl">교 부 일</td><td class="val" id="cGrantDate"></td></tr>
+    </table>
+    <div class="cert-notice">
+      ※ 본 확인서는 서울특별시교육청에서 발급한 공식 문서입니다.<br>
+      ※ 위 교부금은 사업 목적에 맞게 집행하여야 하며, 미사용 잔액은 반납하여야 합니다.<br>
+      ※ 문의: 교육청 담당자 | ☎ 02-6033-6134
+    </div>
+    <div class="cert-sign">
+      <div class="cert-sign-text">서울특별시교육청<br>교육감</div>
+      <div class="cert-sign-box">
+        <span class="cert-sign-label">(직 인)</span>
+        <img src="seal.png" alt="직인">
+      </div>
+    </div>
+    <div class="cert-date" id="cIssueDate"></div>
+    <div class="cert-issuer">서울특별시교육청</div>
+    <div class="cert-footer">
+      <span>Seoul Metropolitan Office of Education</span>
+      <span id="cFooterDate"></span>
+    </div>
+  </div>
 </div>
 
 <script type="module">
@@ -70,12 +148,91 @@
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqaHVidWJqcXN2aXRrYWFnZnpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTMyNDEsImV4cCI6MjA5MjMyOTI0MX0.IKD1hprLvoDCwk-oQrv9KAscfZu93RwKaLFkY2rOfUw'
   );
 
-  const DOWNLOAD_START = new Date('2026-04-01');
-  const DOWNLOAD_END   = new Date('2026-06-30T23:59:59');
-  if (new Date() < DOWNLOAD_START || new Date() > DOWNLOAD_END) {
-    document.getElementById('formSection').style.display = 'none';
-    document.getElementById('expiredSection').style.display = 'block';
+  const pad = n => String(n).padStart(2, '0');
+
+  function parseKST(str) {
+    if (!str) return null;
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(str) && !str.endsWith('Z')) return str.slice(0, 16);
+    const d = new Date(str);
+    if (isNaN(d)) return null;
+    const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+    return `${kst.getUTCFullYear()}-${pad(kst.getUTCMonth()+1)}-${pad(kst.getUTCDate())}T${pad(kst.getUTCHours())}:${pad(kst.getUTCMinutes())}`;
   }
+
+  function nowKSTStr() {
+    const kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+    return `${kst.getUTCFullYear()}-${pad(kst.getUTCMonth()+1)}-${pad(kst.getUTCDate())}T${pad(kst.getUTCHours())}:${pad(kst.getUTCMinutes())}`;
+  }
+
+  function fmt(str) { return str.replace('T', ' '); }
+
+  function showExpired(title, desc) {
+    document.getElementById('expiredSection').style.display = 'block';
+    document.querySelector('.expired-title').textContent = title;
+    document.getElementById('expiredDesc').textContent = desc;
+  }
+
+  async function init() {
+    try {
+      const { data: settings, error } = await Promise.race([
+        supabase.from('settings').select('*'),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000))
+      ]);
+
+      if (error) throw new Error(error.message);
+
+      const s = settings?.find(r => r.key === 'start_date');
+      const e = settings?.find(r => r.key === 'end_date');
+
+      if (!s || !e) {
+        document.getElementById('periodText').textContent = '발급 기간이 설정되지 않았습니다.';
+        showExpired('발급 기간 미설정', '관리자에게 문의해 주세요.');
+        return;
+      }
+
+      const sv = parseKST(s.value);
+      const ev = parseKST(e.value);
+
+      if (!sv || !ev) {
+        document.getElementById('periodText').textContent = '발급 기간 데이터 오류';
+        showExpired('데이터 오류', '관리자에게 문의해 주세요.');
+        return;
+      }
+
+      document.getElementById('periodText').innerHTML = `발급 기간: <strong>${fmt(sv)} ~ ${fmt(ev)}</strong> (KST)`;
+
+      const now = nowKSTStr();
+
+      if (now > ev) {
+        await supabase.from('grant_certificates').delete().gte('created_at', '2000-01-01');
+        showExpired('발급 기간 종료', `발급 기간이 종료되었습니다.\n(종료: ${fmt(ev)})`);
+        return;
+      }
+
+      if (now < sv) {
+        showExpired('발급 기간 전', `아직 발급 기간이 아닙니다.\n(시작: ${fmt(sv)})`);
+        return;
+      }
+
+      document.getElementById('formSection').style.display = 'block';
+
+      const { data: proj } = await supabase.from('grant_certificates').select('project_name').limit(1).single();
+      if (proj?.project_name) document.getElementById('projectBadge').textContent = proj.project_name;
+
+    } catch (err) {
+      document.getElementById('periodText').textContent = '불러오기 실패';
+      document.getElementById('expiredSection').style.display = 'block';
+      document.querySelector('.expired-title').textContent = '연결 오류';
+      document.getElementById('expiredDesc').textContent = '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+      const retryBtn = document.createElement('button');
+      retryBtn.textContent = '다시 시도';
+      retryBtn.className = 'retry-btn';
+      retryBtn.onclick = () => location.reload();
+      document.getElementById('expiredSection').appendChild(retryBtn);
+    }
+  }
+
+  init();
 
   document.getElementById('submitBtn').addEventListener('click', async () => {
     const schoolName = document.getElementById('schoolName').value.trim();
@@ -83,7 +240,6 @@
     const btn        = document.getElementById('submitBtn');
     const msgBox     = document.getElementById('msgBox');
     msgBox.style.display = 'none';
-    msgBox.className = 'msg';
 
     if (!schoolName || !neisNum) { showMsg('학교명과 NEIS 번호를 모두 입력해 주세요.', 'error'); return; }
 
@@ -91,33 +247,37 @@
     btn.innerHTML = '<span class="spinner"></span>조회 중...';
 
     const { data, error } = await supabase
-      .from('schools').select('*')
+      .from('grant_certificates').select('*')
       .eq('school_name', schoolName).eq('neis_number', neisNum).single();
 
-    if (error || !data) {
-      showMsg('일치하는 학교 정보가 없습니다. 학교명과 NEIS 번호를 다시 확인해 주세요.', 'error');
-    } else {
-      setTimeout(() => downloadPDF(data), 600);
-    }
     btn.disabled = false;
-    btn.innerHTML = '교부확인서 다운로드';
+    btn.innerHTML = '교부확인서 출력';
+
+    if (error || !data) {
+      showMsg('일치하는 학교 정보가 없습니다.\n학교명과 NEIS 번호를 다시 확인해 주세요.', 'error');
+      return;
+    }
+
+    fillCert(data);
+    setTimeout(() => window.print(), 300);
   });
 
-  async function downloadPDF(record) {
-    if (!record.file_url) { showMsg('파일이 아직 등록되지 않았습니다. 담당자에게 문의해 주세요.', 'error'); return; }
-    try {
-      const res  = await fetch(record.file_url);
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(new Blob([blob], { type: 'application/octet-stream' }));
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = '교부확인서_' + record.school_name + '.pdf';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-      showMsg('✓ 교부확인서가 다운로드되었습니다.\n우측 상단의 \'최근 다운로드 기록\' 버튼을 눌러 파일을 확인하세요.', 'success');
-    } catch(e) {
-      showMsg('다운로드 중 오류가 발생했습니다. 담당자에게 문의해 주세요.', 'error');
-    }
+  window.onafterprint = () => { document.title = '교부확인서 발급'; };
+
+  function fillCert(d) {
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}년 ${pad(today.getMonth()+1)}월 ${pad(today.getDate())}일`;
+    const timeStr = `${pad(today.getHours())}:${pad(today.getMinutes())}:${pad(today.getSeconds())}`;
+
+    document.getElementById('cProjectName').textContent = d.project_name || '-';
+    document.getElementById('cSchoolName').textContent  = d.school_name  || '-';
+    document.getElementById('cNeisNumber').textContent  = d.neis_number  || '-';
+    document.getElementById('cGrantAmount').textContent = (d.grant_amount || '-') + ' 원';
+    document.getElementById('cGrantDate').textContent   = d.grant_date   || '-';
+    document.getElementById('cIssueDate').textContent   = dateStr;
+    document.getElementById('cFooterDate').textContent  = `${dateStr} ${timeStr} 발급`;
+    document.getElementById('certIssueNo').textContent  = `발급일: ${dateStr} ${timeStr}`;
+    document.title = `교부확인서 발급_${d.school_name}`;
   }
 
   function showMsg(text, type) {

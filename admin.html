@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>교부확인서 관리자</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif; background: #f5f6f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
+  .container { background: #fff; border-radius: 16px; border: 0.5px solid #e0e0e0; padding: 2.5rem; max-width: 600px; width: 100%; }
+  .badge { display: inline-block; background: #fff3e0; color: #e65100; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem; }
+  h1 { font-size: 18px; font-weight: 600; color: #1a1a2e; margin-bottom: 0.35rem; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 1.75rem; line-height: 1.6; }
+  .section-title { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 0.5px solid #ebebeb; }
+  .section { margin-bottom: 2rem; }
+  label { display: block; font-size: 13px; font-weight: 500; color: #444; margin-bottom: 6px; }
+  input[type="date"] { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: border 0.2s; background: #fafafa; color: #1a1a2e; }
+  input[type="date"]:focus { border-color: #4056c8; background: #fff; }
+  select { width: 100%; padding: 10px 14px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; outline: none; background: #fafafa; color: #1a1a2e; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+  select:focus { border-color: #4056c8; background-color: #fff; }
+  .field { margin-bottom: 1rem; }
+  .btn { width: 100%; padding: 12px; background: #4056c8; color: #fff; font-size: 15px; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+  .btn:hover { background: #3247b5; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { background: #b0b8e0; cursor: not-allowed; }
+  .btn-outline { width: 100%; padding: 10px; background: #fff; color: #4056c8; font-size: 13px; font-weight: 500; border: 1px solid #4056c8; border-radius: 10px; cursor: pointer; margin-bottom: 1rem; transition: background 0.2s; }
+  .btn-outline:hover { background: #f0f3ff; }
+  .btn-danger { width: 100%; padding: 10px; background: #fff; color: #b53030; font-size: 13px; font-weight: 500; border: 1px solid #f5b0b0; border-radius: 10px; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s; }
+  .btn-danger:hover { background: #fff1f1; }
+  .period-card { background: #f7f8ff; border: 0.5px solid #d0d6f5; border-radius: 12px; padding: 16px; margin-bottom: 8px; }
+  .period-card-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; margin-bottom: 10px; }
+  .period-card-label.start { color: #4056c8; }
+  .period-card-label.end { color: #b53030; }
+  .period-card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .period-card-body input, .period-card-body select { background: #fff; }
+  .period-arrow { text-align: center; font-size: 18px; color: #b0b8d8; margin: 4px 0; }
+  .current-period { background: #f7f8ff; border: 0.5px solid #d0d6f5; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #5566aa; margin-bottom: 1rem; }
+  .upload-area { border: 2px dashed #d0d6f5; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: border 0.2s, background 0.2s; margin-bottom: 1rem; }
+  .upload-area:hover, .upload-area.drag { border-color: #4056c8; background: #f7f8ff; }
+  .upload-icon { font-size: 32px; margin-bottom: 0.5rem; }
+  .upload-title { font-size: 13px; font-weight: 500; color: #333; }
+  .upload-sub { font-size: 12px; color: #aaa; margin-top: 4px; }
+  input[type="file"] { display: none; }
+  .preview { display: none; margin-bottom: 1rem; }
+  .preview-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+  .preview-title { font-size: 13px; font-weight: 500; color: #444; }
+  .count-badge { background: #eef2ff; color: #4056c8; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+  .table-wrap { overflow-x: auto; border: 0.5px solid #ebebeb; border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { background: #f7f8ff; color: #5566aa; font-weight: 500; padding: 10px 12px; text-align: left; border-bottom: 0.5px solid #ebebeb; white-space: nowrap; }
+  td { padding: 9px 12px; border-bottom: 0.5px solid #f0f0f0; color: #333; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  .msg { margin-top: 1rem; padding: 12px 16px; border-radius: 8px; font-size: 13px; line-height: 1.6; display: none; }
+  .msg.success { background: #eef9f1; color: #1d6e3a; border: 0.5px solid #a3d9b1; }
+  .msg.error { background: #fff1f1; color: #b53030; border: 0.5px solid #f5b0b0; }
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.5); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .progress { display: none; margin-top: 1rem; }
+  .progress-bar-wrap { background: #f0f0f0; border-radius: 10px; height: 6px; margin-top: 0.5rem; }
+  .progress-bar { background: #4056c8; height: 6px; border-radius: 10px; width: 0%; transition: width 0.2s; }
+  .progress-text { font-size: 12px; color: #888; margin-top: 0.4rem; }
+  .footer { margin-top: 1.5rem; font-size: 11px; color: #bbb; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="badge">관리자</div>
+  <h1>교부확인서 관리자</h1>
+  <p class="subtitle">발급 기간 설정 및 데이터 업로드를 관리합니다.</p>
+
+  <div class="section">
+    <div class="section-title">발급 기간 설정</div>
+    <div class="current-period" id="currentPeriod">현재 설정된 기간을 불러오는 중...</div>
+
+    <div class="period-card">
+      <div class="period-card-label start">시작</div>
+      <div class="period-card-body">
+        <div class="f-date"><div class="time-label">날짜</div><input type="date" id="startDate"></div>
+        <div class="f-hour"><div class="time-label">시</div><select id="startHour"></select></div>
+      </div>
+    </div>
+    <div class="period-arrow">↓</div>
+    <div class="period-card">
+      <div class="period-card-label end">종료</div>
+      <div class="period-card-body">
+        <div class="f-date"><div class="time-label">날짜</div><input type="date" id="endDate"></div>
+        <div class="f-hour"><div class="time-label">시</div><select id="endHour"></select></div>
+      </div>
+    </div>
+    <div style="margin-bottom:1rem"></div>
+    <button class="btn" id="savePeriodBtn" onclick="savePeriod()">발급 기간 저장</button>
+    <div class="msg" id="periodMsg"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">데이터 업로드</div>
+    <button class="btn-outline" onclick="downloadSample()">샘플 엑셀 다운로드</button>
+    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+      <div class="upload-icon">📊</div>
+      <div class="upload-title">엑셀 파일을 드래그하거나 클릭해서 업로드</div>
+      <div class="upload-sub">.xlsx, .xls 파일 지원</div>
+    </div>
+    <input type="file" id="fileInput" accept=".xlsx,.xls">
+    <div class="preview" id="preview">
+      <div class="preview-header">
+        <span class="preview-title">미리보기</span>
+        <span class="count-badge" id="countBadge">0개</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>학교명</th><th>NEIS번호</th><th>사업명</th><th>교부금액</th><th>교부일</th></tr></thead>
+          <tbody id="previewBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="progress" id="progressWrap">
+      <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="progress-text" id="progressText">업로드 중...</div>
+    </div>
+    <button class="btn" id="uploadBtn" style="display:none;margin-top:1rem" onclick="uploadToDB()">DB에 저장하기</button>
+    <div class="msg" id="uploadMsg"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">DB 관리</div>
+    <button class="btn-danger" onclick="deleteAllData()">DB 데이터 즉시 폐기</button>
+    <div class="msg" id="deleteMsg"></div>
+  </div>
+
+  <div class="footer">문의: 교육청 담당자 | ☎ 02-6033-6134</div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+  const supabase = createClient(
+    'https://kjhububjqsvitkaagfzd.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqaHVidWJqcXN2aXRrYWFnZnpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NTMyNDEsImV4cCI6MjA5MjMyOTI0MX0.IKD1hprLvoDCwk-oQrv9KAscfZu93RwKaLFkY2rOfUw'
+  );
+
+  let parsedData = [];
+
+  // 시간 옵션 생성 (0~23시)
+  function buildHourOptions(selId, defaultVal) {
+    const sel = document.getElementById(selId);
+    for (let h = 0; h < 24; h++) {
+      const hh = String(h).padStart(2,'0');
+      const opt = document.createElement('option');
+      opt.value = hh; opt.textContent = hh + '시';
+      if (hh === defaultVal) opt.selected = true;
+      sel.appendChild(opt);
+    }
+  }
+  buildHourOptions('startHour', '09');
+  buildHourOptions('endHour',   '18');
+
+  // KST 문자열 파싱 (YYYY-MM-DDTHH:MM 또는 ISO 형식 모두 처리)
+  function parseKST(str) {
+    if (!str) return null;
+    // 이미 KST 형식 (YYYY-MM-DDTHH:MM)
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str)) return str;
+    // ISO 형식 (UTC) → KST 변환
+    const d = new Date(str);
+    if (isNaN(d)) return null;
+    const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+    const pad = n => String(n).padStart(2,'0');
+    return `${kst.getUTCFullYear()}-${pad(kst.getUTCMonth()+1)}-${pad(kst.getUTCDate())}T${pad(kst.getUTCHours())}:${pad(kst.getUTCMinutes())}`;
+  }
+
+  function fmtDisplay(kstStr) {
+    if (!kstStr) return '-';
+    return kstStr.replace('T', ' ');
+  }
+
+  async function loadPeriod() {
+    const { data } = await supabase.from('settings').select('*');
+    if (data?.length) {
+      const s = data.find(r => r.key === 'start_date');
+      const e = data.find(r => r.key === 'end_date');
+      const sv = parseKST(s?.value);
+      const ev = parseKST(e?.value);
+      if (sv) {
+        const [sd, st] = sv.split('T');
+        document.getElementById('startDate').value = sd;
+        document.getElementById('startHour').value = st.slice(0,2);
+      }
+      if (ev) {
+        const [ed, et] = ev.split('T');
+        document.getElementById('endDate').value = ed;
+        document.getElementById('endHour').value = et.slice(0,2);
+      }
+      document.getElementById('currentPeriod').textContent = sv && ev
+        ? `현재 발급 기간: ${fmtDisplay(sv)} ~ ${fmtDisplay(ev)} (KST)`
+        : '설정된 발급 기간이 없습니다.';
+    } else {
+      document.getElementById('currentPeriod').textContent = '설정된 발급 기간이 없습니다.';
+    }
+  }
+  loadPeriod();
+
+  window.savePeriod = async function() {
+    const start = document.getElementById('startDate').value;
+    const sH    = document.getElementById('startHour').value;
+    const end   = document.getElementById('endDate').value;
+    const eH    = document.getElementById('endHour').value;
+    const btn   = document.getElementById('savePeriodBtn');
+
+    if (!start || !end) { showMsg('periodMsg', '날짜를 모두 선택해 주세요.', 'error'); return; }
+    const startVal = `${start}T${sH}:00`;
+    const endVal   = `${end}T${eH}:00`;
+    if (startVal >= endVal) { showMsg('periodMsg', '종료일시가 시작일시보다 빠르거나 같습니다.', 'error'); return; }
+
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>저장 중...';
+    for (const [key, value] of [['start_date', startVal], ['end_date', endVal]]) {
+      await supabase.from('settings').upsert({ key, value }, { onConflict: 'key' });
+    }
+    document.getElementById('currentPeriod').textContent = `현재 발급 기간: ${fmtDisplay(startVal)} ~ ${fmtDisplay(endVal)} (KST)`;
+    showMsg('periodMsg', '✓ 발급 기간이 저장되었습니다.', 'success');
+    btn.disabled = false; btn.innerHTML = '발급 기간 저장';
+  };
+
+  // 엑셀 업로드
+  const uploadArea = document.getElementById('uploadArea');
+  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag'); });
+  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag'));
+  uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.classList.remove('drag'); handleFile(e.dataTransfer.files[0]); });
+  document.getElementById('fileInput').addEventListener('change', e => handleFile(e.target.files[0]));
+
+  function formatAmount(val) {
+    if (!val && val !== 0) return '';
+    const num = parseInt(String(val).replace(/[^0-9]/g, ''), 10);
+    if (isNaN(num)) return String(val);
+    return num.toLocaleString('ko-KR');
+  }
+
+  function handleFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const wb = XLSX.read(e.target.result, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      parsedData = rows.map(r => ({
+        school_name:  String(r['학교명'] || '').trim(),
+        neis_number:  String(r['NEIS번호'] || '').trim(),
+        project_name: String(r['사업명'] || '').trim(),
+        grant_amount: formatAmount(r['교부금액']),
+        grant_date:   String(r['교부일'] || '').trim(),
+      })).filter(r => r.school_name && r.neis_number);
+      renderPreview(parsedData);
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function renderPreview(data) {
+    const tbody = document.getElementById('previewBody');
+    tbody.innerHTML = data.slice(0,5).map(r =>
+      `<tr><td>${r.school_name}</td><td>${r.neis_number}</td><td>${r.project_name}</td><td>${r.grant_amount}</td><td>${r.grant_date}</td></tr>`
+    ).join('');
+    if (data.length > 5) tbody.innerHTML += `<tr><td colspan="5" style="text-align:center;color:#aaa;font-size:11px;">... 외 ${data.length-5}개</td></tr>`;
+    document.getElementById('countBadge').textContent = data.length + '개';
+    document.getElementById('preview').style.display = 'block';
+    document.getElementById('uploadBtn').style.display = 'block';
+  }
+
+  window.uploadToDB = async function() {
+    if (!parsedData.length) return;
+    const btn = document.getElementById('uploadBtn');
+    const progressWrap = document.getElementById('progressWrap');
+    const progressBar  = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>저장 중...';
+    progressWrap.style.display = 'block';
+
+    const { error: delErr } = await supabase.from('grant_certificates').delete().gte('created_at', '2000-01-01');
+    if (delErr) { showMsg('uploadMsg', '기존 데이터 삭제 실패: ' + delErr.message, 'error'); btn.disabled = false; btn.innerHTML = 'DB에 저장하기'; return; }
+
+    const BATCH = 10;
+    for (let i = 0; i < parsedData.length; i += BATCH) {
+      const chunk = parsedData.slice(i, i + BATCH);
+      const { error } = await supabase.from('grant_certificates').insert(chunk);
+      if (error) { showMsg('uploadMsg', '저장 실패: ' + error.message, 'error'); btn.disabled = false; btn.innerHTML = 'DB에 저장하기'; return; }
+      const pct = Math.round(((i + chunk.length) / parsedData.length) * 100);
+      progressBar.style.width = pct + '%';
+      progressText.textContent = `${i + chunk.length} / ${parsedData.length}개 저장 중...`;
+    }
+    progressBar.style.width = '100%';
+    progressText.textContent = '완료!';
+    showMsg('uploadMsg', '✓ ' + parsedData.length + '개 학교 데이터가 성공적으로 저장되었습니다. 잠시 후 새로고침됩니다.', 'success');
+    btn.disabled = false; btn.innerHTML = 'DB에 저장하기';
+    setTimeout(() => location.reload(), 2000);
+  };
+
+  window.downloadSample = function() {
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([
+      ['학교명', 'NEIS번호', '사업명', '교부금액', '교부일'],
+      ['서울공업고등학교', 'B100000001', '2026년 글로벌 현장학습', 5000000, '2026-04-01'],
+      ['성동공업고등학교', 'B100000002', '2026년 글로벌 현장학습', 4500000, '2026-04-01'],
+    ]);
+    ws['D2'].t = 'n'; ws['D3'].t = 'n';
+    XLSX.utils.book_append_sheet(wb, ws, '교부확인서');
+    XLSX.writeFile(wb, '교부확인서_샘플.xlsx');
+  };
+
+  window.deleteAllData = async function() {
+    if (!confirm('정말 모든 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
+    const { error } = await supabase.from('grant_certificates').delete().gte('created_at', '2000-01-01');
+    if (error) { showMsg('deleteMsg', '삭제 실패: ' + error.message, 'error'); return; }
+    showMsg('deleteMsg', '✓ 모든 데이터가 삭제되었습니다.', 'success');
+  };
+
+  function showMsg(id, text, type) {
+    const m = document.getElementById(id);
+    m.textContent = text; m.className = 'msg ' + type; m.style.display = text ? 'block' : 'none';
+  }
+</script>
+</body>
+</html>
