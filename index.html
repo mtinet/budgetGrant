@@ -174,6 +174,18 @@ function showExpired(title, desc) {
   document.getElementById('expiredDesc').textContent = desc;
 }
 
+var currentPhone = '02-6033-6134';
+
+function updatePhone(phone) {
+  if (!phone) return;
+  currentPhone = phone;
+  document.querySelector('.footer').textContent = '문의: 교육청 담당자 | ☎ ' + phone;
+  document.querySelector('.cert-notice').innerHTML =
+    '※ 본 확인서는 서울특별시교육청에서 발급한 공식 문서입니다.<br>' +
+    '※ 위 교부금은 사업 목적에 맞게 집행하여야 하며, 미사용 잔액은 반납하여야 합니다.<br>' +
+    '※ 문의: 교육청 담당자 | ☎ ' + phone;
+}
+
 function showMsg(text, type) {
   var m = document.getElementById('msgBox');
   m.textContent = text;
@@ -234,6 +246,8 @@ async function init() {
 
     var now = nowKSTStr();
 
+    var phoneRow = settings && settings.find(function(r) { return r.key === 'phone'; });
+    updatePhone(phoneRow && phoneRow.value);
     if (now > ev) {
       await supabase.from('grant_certificates').delete().gte('created_at', '2000-01-01');
       showExpired('발급 기간 종료', '발급 기간이 종료되었습니다. (종료: ' + fmt(ev) + ')');
@@ -263,7 +277,20 @@ async function init() {
     if (projResult.data && projResult.data.project_name) {
       document.getElementById('projectBadge').textContent = projResult.data.project_name;
     }
-    document.getElementById('formSection').style.display = 'block';
+          document.getElementById('formSection').style.display = 'block';
+
+      // 전화번호 불러오기
+      var phoneRow = settings && settings.find(function(r) { return r.key === 'phone'; });
+      if (phoneRow && phoneRow.value) {
+        var phoneStr = '문의: 교육청 담당자 | ☎ ' + phoneRow.value;
+        document.querySelector('.footer').textContent = phoneStr;
+        document.querySelector('.cp-footer span:last-child') && null;
+        // 교부확인서 안의 전화번호도 업데이트
+        document.querySelector('.cert-notice').innerHTML =
+          '※ 본 확인서는 서울특별시교육청에서 발급한 공식 문서입니다.<br>' +
+          '※ 위 교부금은 사업 목적에 맞게 집행하여야 하며, 미사용 잔액은 반납하여야 합니다.<br>' +
+          '※ 문의: 교육청 담당자 | ☎ ' + phoneRow.value;
+      }
 
   } catch(err) {
     document.getElementById('periodText').textContent = '불러오기 실패';

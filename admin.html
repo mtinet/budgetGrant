@@ -145,6 +145,17 @@ tr:last-child td { border-bottom: none; }
   <p class="subtitle">발급 기간 설정 및 데이터 업로드를 관리합니다.</p>
 
   <div class="section">
+    <div class="section-title">담당자 전화번호 설정</div>
+    <div class="current-period" id="currentPhone">현재 전화번호를 불러오는 중...</div>
+    <div class="field">
+      <label for="phoneInput">전화번호</label>
+      <input type="text" id="phoneInput" placeholder="예) 02-6033-6134">
+    </div>
+    <button class="btn" id="savePhoneBtn">전화번호 저장</button>
+    <div class="msg" id="phoneMsg"></div>
+  </div>
+
+  <div class="section">
     <div class="section-title">발급 기간 설정</div>
     <div class="current-period" id="currentPeriod">현재 설정된 기간을 불러오는 중...</div>
     <div class="period-card">
@@ -308,10 +319,11 @@ document.getElementById('adminPw').addEventListener('keydown', function(e) { if 
 async function loadPeriod() {
   var result = await supabase.from('settings').select('*');
   if (result.data && result.data.length) {
-    var s = null, e = null;
+    var s = null, e = null, p = null;
     result.data.forEach(function(r) {
       if (r.key === 'start_date') s = r;
       if (r.key === 'end_date') e = r;
+      if (r.key === 'phone') p = r;
     });
     var sv = s ? parseKST(s.value) : null;
     var ev = e ? parseKST(e.value) : null;
@@ -320,10 +332,29 @@ async function loadPeriod() {
     document.getElementById('currentPeriod').textContent = sv && ev
       ? '현재 발급 기간: ' + sv.replace('T',' ') + ' ~ ' + ev.replace('T',' ') + ' (KST)'
       : '설정된 발급 기간이 없습니다.';
+    if (p) {
+      document.getElementById('currentPhone').textContent = '현재 전화번호: ' + p.value;
+      document.getElementById('phoneInput').value = p.value;
+    } else {
+      document.getElementById('currentPhone').textContent = '설정된 전화번호가 없습니다.';
+    }
   } else {
     document.getElementById('currentPeriod').textContent = '설정된 발급 기간이 없습니다.';
+    document.getElementById('currentPhone').textContent = '설정된 전화번호가 없습니다.';
   }
 }
+
+// 전화번호 저장
+document.getElementById('savePhoneBtn').addEventListener('click', async function() {
+  var phone = document.getElementById('phoneInput').value.trim();
+  var btn = this;
+  if (!phone) { showMsg('phoneMsg', '전화번호를 입력해 주세요.', 'error'); return; }
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>저장 중...';
+  await supabase.from('settings').upsert({ key: 'phone', value: phone }, { onConflict: 'key' });
+  document.getElementById('currentPhone').textContent = '현재 전화번호: ' + phone;
+  showMsg('phoneMsg', '✓ 전화번호가 저장되었습니다.', 'success');
+  btn.disabled = false; btn.innerHTML = '전화번호 저장';
+});
 
 // 발급 기간 저장
 document.getElementById('savePeriodBtn').addEventListener('click', async function() {
