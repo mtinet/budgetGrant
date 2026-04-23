@@ -182,7 +182,7 @@ function updatePhone(phone) {
   document.querySelector('.footer').textContent = '문의: 교육청 담당자 | ☎ ' + phone;
   document.querySelector('.cert-notice').innerHTML =
     '※ 본 확인서는 서울특별시교육청에서 발급한 공식 문서입니다.<br>' +
-    '※ 위 교부금은 사업 목적에 맞게 집행하여야 하며, 미사용 잔액은 반납하여야 합니다.<br>' +
+    '※ 위 교부금은 잔액없이 전액 집행하여야 합니다.<br>' +
     '※ 문의: 교육청 담당자 | ☎ ' + phone;
 }
 
@@ -288,7 +288,7 @@ async function init() {
         // 교부확인서 안의 전화번호도 업데이트
         document.querySelector('.cert-notice').innerHTML =
           '※ 본 확인서는 서울특별시교육청에서 발급한 공식 문서입니다.<br>' +
-          '※ 위 교부금은 사업 목적에 맞게 집행하여야 하며, 미사용 잔액은 반납하여야 합니다.<br>' +
+          '※ 위 교부금은 잔액없이 전액 집행하여야 합니다.<br>' +
           '※ 문의: 교육청 담당자 | ☎ ' + phoneRow.value;
       }
 
